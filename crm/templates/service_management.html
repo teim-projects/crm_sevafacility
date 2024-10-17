@@ -1,0 +1,407 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Management Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            margin-top: 10px;
+            width: 55px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4caf50; /* Light green color */
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 40px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .gst-toggle-label {
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+            margin-bottom: 35px;
+        }
+        /* Example internal CSS */
+.form-check {
+    margin-bottom: 10px;
+}
+
+.form-check-input {
+    margin-right: 10px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
+        <ul>
+            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="container mt-5 form-container" style="padding-left: 500px;">
+        <h2>Service Management Form</h2>
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="customer_name" class="form-label">Customer Name</label>
+                <input type="text" id="customer_name" name="customer_name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="customer_contact" class="form-label">Customer Mobile No</label>
+                <input type="text" id="customer_contact" name="customer_contact" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="customer_email" class="form-label">Customer Email ID</label>
+                <input type="email" id="customer_email" name="customer_email" class="form-control" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="servicetype" class="form-label">Service Type (Category)</label>
+                <select id="servicetype" name="servicetype" class="form-select" name="servicetype">
+                    <option value="">Select a Category</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Services (Products) Field - Initially Empty -->
+            <div class="mb-3" id="services-container" style="display:none;">
+                <label for="services" class="form-label">Services (Products)</label>
+                <div id="services" name="services"></div> <!-- Products will be populated here dynamically -->
+            </div>
+            
+            <!-- Selected Services Field (For Reference) -->
+            <div class="mb-3">
+                <label for="selected_services" class="form-label">Selected Services</label>
+                <textarea id="selected_services" name="selected_services" class="form-control" rows="4" readonly>
+                    {% if form.selected_services %}
+                        {{ form.selected_services.value|safe }}
+                    {% endif %}
+                </textarea>
+            </div>
+            
+
+            <!-- Total Price (Read-only) -->
+            <div class="mb-3">
+                <label for="total_price" class="form-label">Total Price</label>
+                <input type="text" id="total_price" name="total_price" class="form-control" value="{{ form.total_price.value }}" readonly>
+            </div>
+
+            <!-- GST Checkbox -->
+            <div class="mb-3 form-check">
+                <input type="checkbox" id="gst_checkbox" name="gst_checkbox" class="form-check-input" {% if form.gst_checkbox.value %}checked{% endif %}>
+                <label class="form-check-label" for="gst_checkbox">Apply GST (18%)</label>
+            </div>
+
+            <div class="mb-3" id="gst_number_div">
+                <label for="gst_number" class="form-label">GST Number</label>
+                <input type="text" id="gst_number" name="gst_number" class="form-control" {% if not form.gst_checkbox.value %}disabled{% endif %}>
+            </div>
+
+            <!-- Total Price with GST (Read-only) -->
+            <div class="mb-3">
+                <label for="total_price_with_gst" class="form-label">Total Price with GST</label>
+                <input type="text" id="total_price_with_gst" name="total_price_with_gst" class="form-control" value="{{ form.total_price_with_gst.value }}" readonly>
+            </div>
+
+            <!-- Contract Type -->
+           <!-- Contract Type -->
+<div class="mb-3">
+    <label for="contract_type" class="form-label">Contract Type</label>
+    <select id="contract_type" name="contract_type" class="form-select">
+        {% for choice, label in form.contract_type.field.choices %}
+            <option value="{{ choice }}" {% if form.contract_type.value == choice %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- Contract Status -->
+<div class="mb-3">
+    <label for="contract_status" class="form-label">Contract Status</label>
+    <select id="contract_status" name="contract_status" class="form-select">
+        {% for choice, label in form.contract_status.field.choices %}
+            <option value="{{ choice }}" {% if form.contract_status.value == choice %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+
+            <!-- Property Type -->
+            <div class="mb-3">
+                <label for="property_type" class="form-label">Property Type</label>
+                <textarea id="property_type" name="property_type" class="form-control">{{ form.property_type.value }}</textarea>
+            </div>
+
+            <!-- Warranty Period -->
+            <div class="mb-3">
+                <label for="warranty_period" class="form-label">Warranty Period</label>
+                <input type="text" id="warranty_period" name="warranty_period" class="form-control" value="{{ form.warranty_period.value }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="state" class="form-label">State</label>
+                <select id="state" name="state" class="form-select" required>
+                    <option value="">Select State</option>
+                    {% for state in indian_states %}
+                        <option value="{{ state }}">{{ state }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="city" class="form-label">City</label>
+                <input type="text" id="city" name="city" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="pincode" class="form-label">Pincode</label>
+                <input type="text" id="pincode" name="pincode" class="form-control" maxlength="6" required>
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea id="address" name="address" class="form-control" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="gps_location" class="form-label">GPS Location</label>
+                <input type="url" id="gps_location" name="gps_location" class="form-control">
+            </div>
+
+
+           <div class="mb-3">
+    <label for="frequency_count" class="form-label">Frequency Count</label>
+    <select id="frequency_count" name="frequency_count" class="form-select">
+        <option value="NOT SELECTED">NOT SELECTED</option>
+        {% for i in frequency_options %}
+            <option value="{{ i }}">{{ i }}</option>
+        {% endfor %}
+        <option value="Fortnight">Fortnight</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Daily">Daily</option>
+    </select>
+</div>
+ 
+            <div class="mb-3">
+                <label for="payment_terms" class="form-label">Payment Terms</label>
+                <input type="text" id="payment_terms" name="payment_terms" class="form-control" value="100% Advance payment OR Whatever mutually Decided" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="sales_person_name" class="form-label">Sales Person Name</label>
+                <input type="text" id="sales_person_name" name="sales_person_name" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="sales_person_contact_no" class="form-label">Sales Person Contact No</label>
+                <input type="text" id="sales_person_contact_no" name="sales_person_contact_no" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="lead_date" class="form-label">Lead Date</label>
+                <input type="date" id="lead_date" name="lead_date" class="form-control" value="{{ form.lead_date.value }}">
+            </div>
+            <div class="mb-3">
+                <label for="service_date" class="form-label">Service Date</label>
+                <input type="date" id="service_date" name="service_date" class="form-control">
+            </div>
+    
+            
+
+            <!-- Submission Button -->
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const serviceTypeSelect = document.getElementById("servicetype");
+        const servicesContainer = document.getElementById("services-container");
+        const servicesDiv = document.getElementById("services");
+        const selectedServicesField = document.getElementById("selected_services");
+        const totalPriceInput = document.getElementById('total_price');
+        const totalPriceWithGstInput = document.getElementById('total_price_with_gst');
+        const gstCheckbox = document.getElementById('gst_checkbox');
+        const gstNumberInput = document.getElementById('gst_number');
+
+        let selectedServices = [];
+
+        // Hide initially
+        servicesContainer.style.display = "none";
+
+        // Show products based on selected category
+        serviceTypeSelect.addEventListener("change", function() {
+            const selectedCategory = this.value;
+
+            // Clear previous services
+            servicesDiv.innerHTML = "";
+
+            if (selectedCategory) {
+                // Show the container
+                servicesContainer.style.display = "block";
+
+                // Filter and display products from the selected category
+                {% for product in products %}
+                    if ("{{ product.category }}" === selectedCategory) {
+                        const productHTML = `
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="services" value="{{ product.id }}" id="product{{ product.id }}" data-product-name="{{ product.product_name }}" data-product-price="{{ product.price }}">
+                                <label class="form-check-label" for="product{{ product.id }}">
+                                    {{ product.product_name }} - Price: ₹{{ product.price }} - Quantity: {{ product.quantity }}
+                                </label>
+                            </div>
+                        `;
+                        servicesDiv.insertAdjacentHTML('beforeend', productHTML);
+                    }
+                {% endfor %}
+            } else {
+                servicesContainer.style.display = "none";  // Hide if no category is selected
+            }
+        });
+
+        // Handle appending selected services (when a product is selected)
+        servicesDiv.addEventListener("change", function(event) {
+            const checkbox = event.target;
+            const productName = checkbox.getAttribute('data-product-name');
+            const productPrice = parseFloat(checkbox.getAttribute('data-product-price'));
+
+            if (checkbox.checked) {
+                // Append the selected service to the textarea
+                const serviceText = `${productName} - Price: ₹${productPrice}`;
+                selectedServices.push({ name: serviceText, price: productPrice });
+            } else {
+                // Remove the service if unchecked
+                selectedServices = selectedServices.filter(service => service.name !== `${productName} - Price: ₹${productPrice}`);
+            }
+
+            // Update the textarea
+            selectedServicesField.value = selectedServices.map(service => service.name).join('\n');
+
+            // Update the total price
+            updateTotalPrice();
+        });
+
+        // Function to update the total price based on selected services and GST
+        function updateTotalPrice() {
+            let totalPrice = selectedServices.reduce((sum, service) => sum + service.price, 0);
+
+            // Update the total price input field
+            totalPriceInput.value = totalPrice.toFixed(2);
+
+            // Calculate total price with GST if checked
+            const totalPriceWithGst = gstCheckbox.checked ? totalPrice * 1.18 : totalPrice;
+            totalPriceWithGstInput.value = totalPriceWithGst.toFixed(2);
+        }
+
+        // Handle GST checkbox change event
+        gstCheckbox.addEventListener("change", updateTotalPrice);
+
+        // Toggle GST Number field based on checkbox
+        gstCheckbox.addEventListener('change', function() {
+            gstNumberInput.disabled = !gstCheckbox.checked;
+        });
+
+        // Initial calculation
+        updateTotalPrice();
+    });
+
+
+    
+</script>
+    
+</body>
+</html>

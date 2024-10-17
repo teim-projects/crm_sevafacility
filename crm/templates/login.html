@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-image: url("{% static 'images/login-background.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .box {
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        .box input[type="text"],
+        .box input[type="password"] {
+            border: 0;
+            background: none;
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            border: 2px solid #3498db;
+            padding: 10px;
+            width: 100%;
+            max-width: 250px;
+            outline: none;
+            color: white;
+            border-radius: 24px;
+            transition: 0.25s;
+        }
+
+        .box h1 {
+            color: white;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .box input[type="text"]:focus,
+        .box input[type="password"]:focus {
+            width: 100%;
+            max-width: 300px;
+            border-color: #2ecc71;
+        }
+
+        .box input[type="submit"] {
+            border: 0;
+            background: none;
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            border: 2px solid #2ecc71;
+            padding: 14px 40px;
+            outline: none;
+            color: white;
+            border-radius: 24px;
+            transition: 0.25s;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .box input[type="submit"]:hover {
+            background: #2ecc71;
+        }
+
+        .forgot {
+            text-decoration: underline;
+        }
+
+        .login-link {
+            color: white;
+            margin-top: 20px;
+        }
+
+        .login-link a {
+            color: #2ecc71;
+            text-decoration: none;
+        }
+
+        /* Media query for mobile view */
+        @media (max-width: 768px) {
+            .box {
+                width: 90%;
+                padding: 20px;
+            }
+
+            .box h1 {
+                font-size: 24px;
+            }
+
+            .box p {
+                font-size: 16px;
+            }
+
+            .box input[type="text"],
+            .box input[type="password"],
+            .box input[type="submit"] {
+                width: 100%;
+                max-width: none;
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .box {
+                padding: 15px;
+            }
+
+            .box h1 {
+                font-size: 20px;
+            }
+
+            .box p {
+                font-size: 14px;
+            }
+
+            .box input[type="text"],
+            .box input[type="password"],
+            .box input[type="submit"] {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+    <title>User Login</title>
+</head>
+
+<body>
+    <div class="box">
+        <form method="POST">
+            {% csrf_token %}
+            <h1 style="font-weight: 100;">Login</h1>
+            <p style="color: white;">Please enter your <span style="color: #2ecc71;">Username</span> and <span style="color: #2ecc71;">Password</span></p>
+            <input type="text" name="uname" placeholder="Username">
+            <input type="password" name="upass" placeholder="Password">
+            <!-- <a class="forgot text-muted" href="#">Forgot password?</a> -->
+            <input type="submit" name="" value="Submit">
+            <p style="color: red;">{{msg1}}</p>
+            <p class="login-link">Don't Have Account? <a href="/signup">Signup</a></p>
+            <!-- <p class="login-link">Login as <a href="/technician_login">Technician</a></p> -->
+        </form>
+    </div>
+</body>
+
+</html>

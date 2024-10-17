@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://kit.fontawesome.com/83e3f05aac.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/script.js' %}" defer></script>
+    <title>Index</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #a69cac;
+            padding-top: 20px;
+            overflow-y: auto;
+            transition: width 0.3s;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar ul li {
+            padding: 10px;
+            color: black;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sidebar ul li:hover {
+            background-color: #555;
+        }
+
+        .submenu {
+            display: none;
+            background-color: #555;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .submenu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .submenu ul li {
+            padding: 8px 20px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .submenu ul li:hover {
+            background-color: #777;
+        }
+
+        .arrow-down {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 10px solid blue;
+        }
+
+        .arrow-up {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid white;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            max-width: 80%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .container {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+            overflow: auto;
+            transition: margin-left 0.3s;
+        }
+
+        .logout-button {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-left: 60px;
+            margin-top: 20px;
+            background-color: #f8d7da;
+            border: none;
+            border-radius: 5px;
+            color: #721c24;
+            cursor: pointer;
+            text-align: left;
+            text-decoration: none;
+        }
+
+        .logout-button i {
+            margin-right: 10px;
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        .logout-button:hover i {
+            transform: rotate(360deg);
+        }
+
+        .logout-button:hover {
+            background-color: #f5c6cb;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+            .container {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 668px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                overflow: visible;
+                transition: width 0.3s;
+            }
+            
+            .sidebar ul {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .sidebar ul li {
+                width: 100%;
+            }
+
+            .container {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .logo img {
+                max-width: 60%;
+            }
+
+            .logout-button {
+                margin-left: 40%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
+        <ul>
+            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Technicians <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/create" style="text-decoration: none;"><li>1.Create Technician</li></a>
+                        <a href="/allocate" style="text-decoration: none;"><li>2.Allocate Work to Technician </li></a>
+                        <a href="/technician_work_list" style="text-decoration: none;"><li>3.Work History </li></a>
+                        <a href="/completed_work" style="text-decoration: none;"><li>4.Completed work list </li></a>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+        <button type="submit" class="logout-button">
+            <a href="/logout" style="text-decoration: none; color: black;"><i class="fa-sharp fa-solid fa-right-from-bracket fa-flip-horizontal" style="color: #fa0000;"></i> Logout</a>
+        </button>
+    </div>
+
+    <div class="container">
+        <h1 style="text-align: center;">Dashboard</h1>
+        <!-- Your content here -->
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const menuItems = document.querySelectorAll('.has-submenu');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const submenu = this.querySelector('.submenu');
+                    const arrow = this.querySelector('.arrow-down');
+                    if (submenu.style.display === 'block') {
+                        submenu.style.display = 'none';
+                        arrow.classList.remove('arrow-up');
+                        arrow.classList.add('arrow-down');
+                    } else {
+                        submenu.style.display = 'block';
+                        arrow.classList.remove('arrow-down');
+                        arrow.classList.add('arrow-up');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

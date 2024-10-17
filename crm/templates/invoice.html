@@ -1,0 +1,380 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static '\css\bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static '\images' %}">
+    <link rel="stylesheet" href="{% static 'css\customer.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+
+   
+    <title>Invoice</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+   
+    <style>
+        
+        /* Toggle Switch CSS */
+.switch {
+    position: relative;
+    display: inline-block;
+    margin-top: 10px;
+    width: 55px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4caf50; /* Light green color */
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 40px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+.gst-toggle-label {
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+            margin-bottom: 35px;
+        }
+
+
+    </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo">
+    </div>
+    <ul>
+        <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+        <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                    <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                    <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                    <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                    <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                    <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                    <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                    <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                    <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                    <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                    <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                    <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                    <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                    <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<section class="vh-100 gradient-custom">
+    <div class="container py-5 h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-12 col-lg-9 col-xl-7">
+                <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="mb-4 pb-2 pb-md-0 mb-md-5" style="padding-left: 200px;">Invoice</h3>
+
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <select id="customer_id" class="form-control form-control-lg" name="customer_id">
+                                            <option value="" disabled selected>Select Customer</option>
+                                            {% for customer in customers %}
+                                            <option value="{{ customer.id }}" data-fullname="{{ customer.firstname }} {{ customer.lastname }}">{{ customer.customerid }} - {{ customer.firstname }} {{ customer.lastname }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                  </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Mode Of Payment" name="modeofpayment" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Dispatched Through" name="dispatchedthrough" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Term Of Delivery" name="termofdelivery" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Terms and Condition" name="termsandcondition" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Company Name" name="company_name" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="email" class="form-control form-control-lg" placeholder="Company Email" name="company_email" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Company Contact No" name="company_contact_no" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Description of Goods" name="description_of_goods" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="number" step="0.01" class="form-control form-control-lg" placeholder="Price" name="price" id="id_price" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="number" step="1" class="form-control form-control-lg" placeholder="Quantity" name="quantity" id="id_quantity" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="number" step="0.01" class="form-control form-control-lg" placeholder="Discount (%)" name="discount" id="id_discount" />
+                                    </div>
+                                </div>
+                                
+                        <div class="col-md-6 mb-4">
+                            <div data-mdb-input-init class="form-outline" style="margin-left: 10px;">
+                                <label class="switch">
+                                    <input type="checkbox" id="gst_checkbox" class="form-check-input" name="gst_checkbox"  />
+                                    <span class="slider round"></span>
+                                </label>
+                                <label class="form-check-label gst-toggle-label" for="gst_checkbox" style="margin-left: 5px; margin-bottom: 40px;">Apply GST</label>
+                            </div>
+                        </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="HSN/SAC Code" name="hsn_sac_code" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="PAN Card No" name="pan_card_no" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Account No" name="account_no" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Branch" name="branch" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="IFSC Code" name="ifsc_code" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="date" class="form-control form-control-lg" name="delivery_date" />
+                                        <label for="delivery_date" style="font-size: 14px;">Dispatched Date</label>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="date" class="form-control form-control-lg" name="dispatched_date" />
+                                        <label for="dispatched_date" style="font-size: 14px;">Dispatched Date</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Designation" name="designation" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                           
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Total Amount" name="total_amount" id="id_total_amount" readonly />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" class="form-control form-control-lg" placeholder="Total Amount with GST" name="total_amount_with_gst" id="id_total_amount_with_gst" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+
+                          
+
+                            
+                            <div class="mt-4 pt-2">
+                                <input class="btn btn-primary btn-lg" type="submit" value="Submit" />
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+            const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const submenu = this.querySelector('.submenu');
+                    const arrow = this.querySelector('.arrow-down');
+                    
+                    // Hide all other submenus
+                    menuItems.forEach(otherItem => {
+                        if (otherItem !== this) {
+                            const otherSubmenu = otherItem.querySelector('.submenu');
+                            const otherArrow = otherItem.querySelector('.arrow-down');
+                            if (otherSubmenu) {
+                                otherSubmenu.style.display = 'none';
+                                if (otherArrow.classList.contains('arrow-up')) {
+                                    otherArrow.classList.remove('arrow-up');
+                                }
+                            }
+                        }
+                    });
+
+                    // Toggle current submenu
+                    if (submenu) {
+                        submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
+                        arrow.classList.toggle('arrow-up');
+                    }
+                });
+            });
+        });
+    document.addEventListener("DOMContentLoaded", function() {
+        // Function to calculate and update total amount and related fields
+        function calculateTotals() {
+            let quantity = parseFloat(document.getElementById('id_quantity').value) || 0;
+            let price = parseFloat(document.getElementById('id_price').value) || 0;
+            let discount = parseFloat(document.getElementById('id_discount').value) || 0;
+            let gstCheckbox = document.getElementById('gst_checkbox').checked;
+
+            let totalAmount = quantity * price;
+            let discountedAmount = totalAmount - (totalAmount * (discount / 100));
+            let totalAmountWithGst = gstCheckbox ? (discountedAmount * 1.18).toFixed(2) : discountedAmount.toFixed(2);
+            
+            // Update the DOM elements with calculated values
+            document.getElementById('id_total_amount').value = totalAmount.toFixed(2);
+            document.getElementById('id_total_amount_with_gst').value = totalAmountWithGst;
+        }
+
+        // Event listeners for input fields to trigger calculation on input change
+        document.getElementById('id_quantity').addEventListener('input', calculateTotals);
+        document.getElementById('id_price').addEventListener('input', calculateTotals);
+        document.getElementById('id_discount').addEventListener('input', calculateTotals);
+        document.getElementById('gst_checkbox').addEventListener('change', calculateTotals);
+    });
+
+</script>
+
+</body>
+</html>

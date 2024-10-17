@@ -1,0 +1,295 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Summary</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            background-color: #a69cac;
+            padding-top: 20px;
+            position: fixed;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            color: black;
+            cursor: pointer;
+            position: relative;
+        }
+        .sidebar ul li:hover {
+            background-color: #555;
+        }
+        .submenu {
+            display: none;
+            background-color: #555;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            z-index: 1;
+        }
+        .submenu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .submenu ul li {
+            padding: 8px 20px;
+            color: white;
+            cursor: pointer;
+        }
+        .submenu ul li:hover {
+            background-color: #777;
+        }
+        .arrow-down {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 10px solid blue;
+        }
+        .arrow-up {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid white;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            margin-left: 40px;
+            max-width: 60%;
+            height: auto;
+            display: block;
+        }
+        .content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            background-color: #f4f4f9;
+            overflow-y: auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        nav.navbar {
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f9f9f9;
+            color: #555;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e9e9e9;
+        }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+        h3 {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+        .customer-summary {
+            cursor: pointer;
+            background-color: #e9e9e9;
+            padding: 10px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 5px;
+        }
+        .customer-summary:hover {
+            background-color: #d9d9d9;
+        }
+        .customer-details {
+            display: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .customer-name {
+            font-weight: bold;
+        }
+        .serial-number {
+            margin-right: 10px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
+        <ul>
+            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Inventory Summary</h1>
+        <div id="searchResults">
+            {% if message %}
+                <p>{{ message }}</p>
+            {% else %}
+                {% for summary in inventory_summary %}
+                    <div class="customer-summary">
+                        <div>
+                            <span class="serial-number">{{ forloop.counter }}</span>
+                            <span class="customer-name">{{ summary.customer.firstname }} {{ summary.customer.lastname }}</span>
+                        </div>
+                        <span>(ID: {{ summary.customer.customerid }})</span>
+                    </div>
+                    <div class="customer-details">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="background-color: #332D2D; color: wheat;">Product</th>
+                                    <th style="background-color: #332D2D; color: wheat;">Quantity</th>
+                                    <th style="background-color: #332D2D; color: wheat;">Price per Unit</th>
+                                    <th style="background-color: #332D2D; color: wheat;">Total Price</th>
+                                    <th style="background-color: #332D2D; color: wheat;">Date Added</th> 
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in summary.entries %}
+                                    <tr>
+                                        <td>{{ entry.product_name }}</td>
+                                        <td>{{ entry.quantity }}</td>
+                                        <td> Rs.{{ entry.price_per_unit }}</td>
+                                        <td> Rs.{{ entry.total_price }}</td>
+                                        <td>{{ entry.date_added }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="no-data">No products available.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <h3 style="background-color: red; display: inline; color: black;" >Total Price: Rs.{{ summary.total_price }}</h3>
+                    </div>
+                {% empty %}
+                    <p>No inventory data available.</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const customerSummaries = document.querySelectorAll('.customer-summary');
+            customerSummaries.forEach(summary => {
+                summary.addEventListener('click', function() {
+                    const details = this.nextElementSibling;
+                    if (details.style.display === 'none' || details.style.display === '') {
+                        details.style.display = 'block';
+                    } else {
+                        details.style.display = 'none';
+                    }
+                });
+            });
+
+            const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const submenu = this.querySelector('.submenu');
+                    const arrow = this.querySelector('.arrow-down');
+                    if (submenu) {
+                        submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
+                        arrow.classList.toggle('arrow-up');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

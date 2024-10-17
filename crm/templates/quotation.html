@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+
+    <title>Quotation</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <style>
+        /* Toggle Switch CSS */
+.switch {
+    position: relative;
+    display: inline-block;
+    margin-top: 10px;
+    width: 55px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4caf50; /* Light green color */
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 40px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+.gst-toggle-label {
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+            margin-bottom: 35px;
+        }
+
+    </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo">
+    </div>
+    <ul>
+        <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+        <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                    <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                    <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                    <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                    <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                    <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                    <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                    <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                    <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                    <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                    <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                    <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                    <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                    <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<section class="vh-100 gradient-custom">
+    <div class="container py-5 h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-12 col-lg-9 col-xl-7">
+                <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="mb-4 pb-2 pb-md-0 mb-md-5" style="text-align: center;">Quotation</h3>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <select id="customer_id" class="form-control form-control-lg" name="customer_id">
+                                            <option value="" disabled selected>Select Customer</option>
+                                            {% for customer in customers %}
+                                            <option value="{{ customer.id }}" data-fullname="{{ customer.firstname }} {{ customer.lastname }}">{{ customer.customerid }} - {{ customer.firstname }} {{ customer.lastname }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                  </div>
+                                  <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <textarea id="servicetype_q" class="form-control form-control-lg" placeholder="Service Type" name="servicetype_q" required></textarea>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="number" id="quantity" class="form-control form-control-lg" placeholder="Quantity" name="quantity" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="number" step="0.01" id="price" class="form-control form-control-lg" placeholder="Price" name="price" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="termsandcondition" class="form-control form-control-lg" placeholder="Terms and Condition" name="termsandcondition" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="subject" class="form-control form-control-lg" placeholder="Subject" name="subject" required />
+                                    </div>
+                                </div>
+                                
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="company_name" class="form-control form-control-lg" placeholder="Company Name" name="company_name" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="email" id="company_email" class="form-control form-control-lg" placeholder="Company Email" name="company_email" required />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="company_contact_no" class="form-control form-control-lg" placeholder="Company Contact No." name="company_contact_no" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="date" id="quotation_date" class="form-control form-control-lg" placeholder="Quotation Date" name="quotation_date" required />
+                                        <label  style="font-size: 14px;">Quotation Date </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="company_address" class="form-control form-control-lg" placeholder="Company Address" name="company_address" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline" style="margin-left: 80px;">
+                                        <label class="switch">
+                                            <input type="checkbox" id="gst_checkbox" class="form-check-input" name="gst_checkbox" />
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <label class="form-check-label gst-toggle-label" for="gst_checkbox" style="margin-left: 5px;">Apply GST</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="number" step="0.01" id="discount" class="form-control form-control-lg" placeholder="Discount (%)" name="discount" required />
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="total_amount" class="form-control form-control-lg" placeholder="Total Amount" name="total_amount" readonly />
+                                        <label  style="font-size: 14px;">Total Amount</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="total_amount_with_gst" class="form-control form-control-lg" placeholder="Total Amount with GST" name="total_amount_with_gst" readonly />
+                                        <label  style="font-size: 14px;">Total Amount with GST and Discount</label>
+                                    </div>
+                                </div>
+
+                                
+                                
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <button class="btn btn-primary btn-lg btn-block" type="submit">Submit Quotation</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+            const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const submenu = this.querySelector('.submenu');
+                    const arrow = this.querySelector('.arrow-down');
+                    
+                    // Hide all other submenus
+                    menuItems.forEach(otherItem => {
+                        if (otherItem !== this) {
+                            const otherSubmenu = otherItem.querySelector('.submenu');
+                            const otherArrow = otherItem.querySelector('.arrow-down');
+                            if (otherSubmenu) {
+                                otherSubmenu.style.display = 'none';
+                                if (otherArrow.classList.contains('arrow-up')) {
+                                    otherArrow.classList.remove('arrow-up');
+                                }
+                            }
+                        }
+                    });
+
+                    // Toggle current submenu
+                    if (submenu) {
+                        submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
+                        arrow.classList.toggle('arrow-up');
+                    }
+                });
+            });
+        });
+        
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityInput = document.getElementById('quantity');
+        const priceInput = document.getElementById('price');
+        const discountInput = document.getElementById('discount');
+        const gstCheckbox = document.getElementById('gst_checkbox');
+        const totalAmountInput = document.getElementById('total_amount');
+        const totalAmountWithGstInput = document.getElementById('total_amount_with_gst');
+
+        function calculateAmounts() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const discount = parseFloat(discountInput.value) || 0;
+
+            let totalAmount = quantity * price;
+            totalAmountInput.value = totalAmount.toFixed(2);
+
+            let discountedAmount = totalAmount - (totalAmount * (discount / 100));
+            let totalAmountWithGst = gstCheckbox.checked ? discountedAmount * 1.18 : discountedAmount;
+            totalAmountWithGstInput.value = totalAmountWithGst.toFixed(2);
+        }
+
+        quantityInput.addEventListener('input', calculateAmounts);
+        priceInput.addEventListener('input', calculateAmounts);
+        discountInput.addEventListener('input', calculateAmounts);
+        gstCheckbox.addEventListener('change', calculateAmounts);
+
+        calculateAmounts();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Detail</title>
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <style>
+        body {
+            display: flex;
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px;
+            background-color: #343a40;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #575d63;
+        }
+        .sidebar .logout-button {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+        }
+        .container {
+            margin-left: 220px;
+            padding: 20px;
+            width: calc(100% - 220px);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+        }
+        .card-body {
+            padding: 15px;
+        }
+        .card-body p {
+            margin-bottom: 10px;
+        }
+        .img-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .img-container div {
+            flex: 1 1 calc(50% - 10px);
+            box-sizing: border-box;
+        }
+        .img-container img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 5px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #0d64af;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .my-4 {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+        a.btn-secondary {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            background-color: #6c757d;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        a.btn-secondary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
+        <ul>
+            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Technicians <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/create" style="text-decoration: none;"><li>1.Create Technician</li></a>
+                        <a href="/allocate" style="text-decoration: none;"><li>2.Allocate Work to Technician</li></a>
+                        <a href="/technician_work_list" style="text-decoration: none;"><li>3.Work History</li></a>
+                        <a href="/completed_work" style="text-decoration: none;"><li>4.Completed Work List</li></a>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>Work Detail - ID: {{ work.id }}</h1>
+        <div class="card">
+            <div class="card-header">
+                <h2>Work Information</h2>
+            </div>
+            <div class="card-body">
+                <p><strong>Technician:</strong> {{ work.technician.username }}</p>
+                <p><strong>Work:</strong> {{ work.work }}</p>
+                <p><strong>Status:</strong> {{ work.status }}</p>
+                <p><strong>Completion Date and Time:</strong> {{ work.completion_datetime|date:"Y-m-d H:i:s" }}</p>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>Photos</h2>
+            </div>
+            <div class="card-body">
+                <div class="img-container">
+                    <div>
+                        <p><strong>Photo Before Service:</strong><br>
+                            {% if work.photo_before_service %}
+                                <img src="{{ work.photo_before_service.url }}" alt="Before Service">
+                            {% else %}
+                                No photo available.
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p><strong>Photo After Service:</strong><br>
+                            {% if work.photo_after_service %}
+                                <img src="{{ work.photo_after_service.url }}" alt="After Service">
+                            {% else %}
+                                No photo available.
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p><strong>Customer Signature Photo:</strong><br>
+                            {% if work.customer_signature_photo %}
+                                <img src="{{ work.customer_signature_photo.url }}" alt="Customer Signature">
+                            {% else %}
+                                No photo available.
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p><strong>Payment Photo:</strong><br>
+                            {% if work.payment_photo %}
+                                <img src="{{ work.payment_photo.url }}" alt="Payment">
+                            {% else %}
+                                No photo available.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'admin_completed_work' %}" class="btn-secondary">Back to List</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const submenu = this.querySelector('.submenu');
+                    const arrow = this.querySelector('.arrow-down');
+                    
+                    // Hide all other submenus
+                    menuItems.forEach(otherItem => {
+                        if (otherItem !== this) {
+                            const otherSubmenu = otherItem.querySelector('.submenu');
+                            const otherArrow = otherItem.querySelector('.arrow-down');
+                            if (otherSubmenu) {
+                                otherSubmenu.style.display = 'none';
+                                if (otherArrow.classList.contains('arrow-up')) {
+                                    otherArrow.classList.remove('arrow-up');
+                                }
+                            }
+                        }
+                    });
+
+                    // Toggle current submenu
+                    if (submenu) {
+                        submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
+                        arrow.classList.toggle('arrow-up');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

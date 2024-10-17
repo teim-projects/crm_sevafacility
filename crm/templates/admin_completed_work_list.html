@@ -1,0 +1,183 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+    
+
+<head>
+    <link rel="stylesheet" href="{% static '\css\bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css\customer.css' %}">
+
+    <title>Completed Work List</title>
+    <style>
+        /* General Styles */
+        
+        .container {
+            margin-left: 270px;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .table-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        table th,
+        table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background: #f4f4f4;
+            color: #333;
+        }
+
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        table a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        table a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
+        <ul>
+            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Technicians <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/create" style="text-decoration: none;"><li>1.Create Technician</li></a>
+                        <a href="/allocate" style="text-decoration: none;"><li>2.Allocate Work to Technician</li></a>
+                        <a href="/technician_work_list" style="text-decoration: none;"><li>3.Work History</li></a>
+                        <a href="/completed_work" style="text-decoration: none;"><li>4.Completed Work List</li></a>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>Completed Work List</h1>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Technician Name</th>
+                        <th>Completion Date and Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for work in completed_work_list %}
+                        <tr>
+                            <td>{{ work.id }}</td>
+                            <td>{{ work.work.customer_name }}</td> <!-- Adjust based on your actual model -->
+                            <td>{{ work.technician.first_name }} {{ work.technician.last_name }}</td>
+                            <td>{{ work.completion_datetime }}</td>
+                            <td><a href="{% url 'admin_work_details' work.pk %}">View More</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const submenu = this.querySelector('.submenu');
+                    const arrow = this.querySelector('.arrow-down');
+                    
+                    // Hide all other submenus
+                    menuItems.forEach(otherItem => {
+                        if (otherItem !== this) {
+                            const otherSubmenu = otherItem.querySelector('.submenu');
+                            const otherArrow = otherItem.querySelector('.arrow-down');
+                            if (otherSubmenu) {
+                                otherSubmenu.style.display = 'none';
+                                if (otherArrow.classList.contains('arrow-up')) {
+                                    otherArrow.classList.remove('arrow-up');
+                                }
+                            }
+                        }
+                    });
+
+                    // Toggle current submenu
+                    if (submenu) {
+                        submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
+                        arrow.classList.toggle('arrow-up');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

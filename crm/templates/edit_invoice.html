@@ -1,0 +1,300 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static '\css\bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static '\images' %}">
+    <link rel="stylesheet" href="{% static 'css\customer.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+
+   
+    <title>Customer Details</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+   
+    
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo">
+    </div>
+    <ul>
+        <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+        <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                    <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                    <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                    <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                    <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                    <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                    <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                    <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                    <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                    <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
+                    <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                    <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                    <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                </ul>
+            </div>
+        </li>
+        <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+            <div class="submenu">
+                <ul>
+                    <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                    <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<section class="vh-100 gradient-custom">
+    <div class="container py-5 h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-12 col-lg-9 col-xl-7">
+                <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="mb-4 pb-2 pb-md-0 mb-md-5" style="padding-left: 200px;">Invoice</h3>
+                        {% for x in data %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="umodeofpayment" class="form-control form-control-lg" placeholder="Mode Of Payment" name="umodeofpayment" value="{{ x.modeofpayment }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="udispatchedthrough" class="form-control form-control-lg" placeholder="Dispatched Through" name="udispatchedthrough" value="{{ x.dispatchedthrough }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="utermofdelivery" class="form-control form-control-lg" placeholder="Terms of Delivery" name="utermofdelivery" value="{{ x.termofdelivery }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="utermsandcondition" class="form-control form-control-lg" placeholder="Terms and Conditions" name="utermsandcondition" value="{{ x.termsandcondition }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="ucompany_name" class="form-control form-control-lg" placeholder="Company Name" name="ucompany_name" value="{{ x.company_name }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="email" id="ucompany_email" class="form-control form-control-lg" placeholder="Company Email" name="ucompany_email" value="{{ x.company_email }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="ucompany_contact_no" class="form-control form-control-lg" placeholder="Company Contact No." name="ucompany_contact_no" value="{{ x.company_contact_no }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="uinvoice_no" class="form-control form-control-lg" placeholder="Invoice No." name="uinvoice_no" value="{{ x.invoice_no }}" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="date" id="udispatched_date" class="form-control form-control-lg" placeholder="Date" name="udispatched_date" value="{{ x.dispatched_date }}" />
+                                        <label for="dispatched_date" style="font-size: 14px;">Dispatched Date</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <textarea id="udescription_of_goods" class="form-control form-control-lg" placeholder="Description Of Goods" name="udescription_of_goods">{{ x.description_of_goods }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="date" id="udelivery_date" class="form-control form-control-lg" placeholder="Delivery Date" name="udelivery_date" value="{{ x.delivery_date }}" />
+                                        <label for="delivery_date" style="font-size: 14px;">Delivery Date</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="uhsn_sac_code" class="form-control form-control-lg" placeholder="HSN/SAC Code" name="uhsn_sac_code" value="{{ x.hsn_sac_code }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="number" id="uquantity" class="form-control form-control-lg" placeholder="Quantity" name="uquantity" value="{{ x.quantity }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="uprice" class="form-control form-control-lg" placeholder="Price" name="uprice" value="{{ x.price }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="udiscount" class="form-control form-control-lg" placeholder="Discount" name="udiscount" value="{{ x.discount }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" id="ugst_checkbox" class="form-check-input" name="ugst_checkbox" {% if x.gst_checkbox %}checked{% endif %} />
+                                        <label class="form-check-label" for="ugst_checkbox">GST Checkbox</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="utotal_amount" class="form-control form-control-lg" placeholder="Total Amount" name="utotal_amount" value="{{ x.total_amount }}" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="utotal_amount_with_gst" class="form-control form-control-lg" placeholder="Total Amount with GST" name="utotal_amount_with_gst" value="{{ x.total_amount_with_gst }}" readonly />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="utotal_amount_in_words" class="form-control form-control-lg" placeholder="Total Amount in Words" name="utotal_amount_in_words" value="{{ x.total_amount_in_words }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="upan_card_no" class="form-control form-control-lg" placeholder="PAN Card No." name="upan_card_no" value="{{ x.pan_card_no }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="uaccount_no" class="form-control form-control-lg" placeholder="Account No." name="uaccount_no" value="{{ x.account_no }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="ubranch" class="form-control form-control-lg" placeholder="Branch" name="ubranch" value="{{ x.branch }}" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="uifsc" class="form-control form-control-lg" placeholder="IFSC" name="uifsc_code" value="{{ x.ifsc_code }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div data-mdb-input-init class="form-outline">
+                                        <input type="text" id="ucompanyaddress" class="form-control form-control-lg" placeholder="Company Address" name="ucompanyaddress" value="{{ x.companyaddress }}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-2">
+                                <input class="btn btn-primary btn-lg" type="submit" value="Submit" name="update" />
+                            </div>
+                        </form>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const submenu = this.querySelector('.submenu');
+                const arrow = this.querySelector('.arrow-down');
+                if (submenu) {
+                    submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
+                    arrow.classList.toggle('arrow-up');
+
+                    // Adjust position of subsequent menu items
+                    const siblingItems = Array.from(this.parentNode.children);
+                    const currentIndex = siblingItems.indexOf(this);
+                    if (submenu.style.display === 'block') {
+                        siblingItems.slice(currentIndex + 1).forEach(sibling => {
+                            sibling.style.marginTop = submenu.clientHeight + 'px';
+                        });
+                    } else {
+                        siblingItems.slice(currentIndex + 1).forEach(sibling => {
+                            sibling.style.marginTop = '0';
+                        });
+                    }
+                }
+            });
+        });
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+        // Function to calculate and update total amount and related fields
+        function calculateTotals() {
+            let quantity = parseFloat(document.getElementById('uquantity').value) || 0;
+            let price = parseFloat(document.getElementById('uprice').value) || 0;
+            let discount = parseFloat(document.getElementById('udiscount').value) || 0;
+            let gstCheckbox = document.getElementById('ugst_checkbox').checked;
+
+            let totalAmount = quantity * price;
+            let discountedAmount = totalAmount - (totalAmount * (discount / 100));
+            let totalAmountWithGst = gstCheckbox ? (discountedAmount * 1.18).toFixed(2) : discountedAmount.toFixed(2);
+            
+            // Update the DOM elements with calculated values
+            document.getElementById('utotal_amount').value = totalAmount.toFixed(2);
+            document.getElementById('utotal_amount_with_gst').value = totalAmountWithGst;
+        }
+
+        // Event listeners for input fields to trigger calculation on input change
+        document.getElementById('uquantity').addEventListener('input', calculateTotals);
+        document.getElementById('uprice').addEventListener('input', calculateTotals);
+        document.getElementById('udiscount').addEventListener('input', calculateTotals);
+        document.getElementById('ugst_checkbox').addEventListener('change', calculateTotals);
+    });
+
+</script>
+
+</body>
+</html>

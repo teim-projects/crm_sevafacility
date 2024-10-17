@@ -1,0 +1,387 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            background-color: #a69cac;
+            padding-top: 20px;
+            position: fixed;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            color: black;
+            cursor: pointer;
+            position: relative;
+        }
+        .sidebar ul li:hover {
+            background-color: #555;
+        }
+        .submenu {
+            display: none;
+            background-color: #555;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            z-index: 1;
+        }
+        .submenu ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .submenu ul li {
+            padding: 8px 20px;
+            color: white;
+            cursor: pointer;
+        }
+        .submenu ul li:hover {
+            background-color: #777;
+        }
+        .arrow-down {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 10px solid blue;
+        }
+        .arrow-up {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid white;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            margin-left: 40px;
+            max-width: 60%;
+            height: auto;
+            display: block;
+        }
+        .content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            background-color: #f4f4f9;
+            overflow-y: auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f9f9f9;
+            color: #555;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e9e9e9;
+        }
+        .no-quantity {
+            background-color: rgb(255, 147, 147) !important;
+        }
+
+
+        .filter-container {
+    display: flex;
+    align-items: center;
+    margin: 20px 0; /* Add margin for spacing */
+}
+
+.filter-container label {
+    margin-right: 10px;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+.filter-container select {
+    padding: 10px 15px;
+    border: 2px solid #007bff; /* Border color */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #f8f9fa; /* Light background color */
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    transition: border-color 0.3s, background-color 0.3s; /* Transition effects */
+}
+
+.filter-container select:hover {
+    border-color: #0056b3; /* Change border color on hover */
+    background-color: #e2e6ea; /* Slightly darker background on hover */
+}
+
+.filter-container select:focus {
+    outline: none; /* Remove default outline */
+    border-color: #0056b3; /* Change border color on focus */
+    background-color: #e2e6ea; /* Maintain background color on focus */
+}
+
+
+        
+        .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    margin: 0 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-size: 16px;
+    margin: 0 10px;
+    color: #333;
+    font-weight: bold;
+}
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
+        <ul>
+            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
+            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
+                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
+                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
+                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
+                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
+                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
+                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
+                    </ul>
+                </div>
+            </li>
+            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
+                <div class="submenu">
+                    <ul>
+                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
+                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Product List</h1>
+        <div class="filter-container">
+            <label for="category-select">Filter by Category:</label>
+            <select id="category-select">
+                <option value="all">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <table id="product-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr class="product-row" data-category="{{ product.category }}">
+                        <td>{{ product.category }}</td>
+                        <td>{{ product.product_id }}</td>
+                        <td>{{ product.product_name }}</td>
+                        <td>{{ product.price }}</td>
+                        <td class="{% if product.quantity == 0 %}no-quantity{% endif %}">{{ product.quantity }}</td>
+                        <td>
+                            <form action="{% url 'delete_product' product.product_id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <button id="prev-btn" disabled>Previous</button>
+            <span id="page-info">Page 1 of {{ total_pages }}</span>
+            <button id="next-btn">Next</button>
+        </div>
+        
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const submenu = this.querySelector('.submenu');
+                    const arrow = this.querySelector('.arrow-down');
+                    
+                    // Hide all other submenus
+                    menuItems.forEach(otherItem => {
+                        if (otherItem !== this) {
+                            const otherSubmenu = otherItem.querySelector('.submenu');
+                            const otherArrow = otherItem.querySelector('.arrow-down');
+                            otherSubmenu.style.display = 'none';
+                            otherArrow.style.display = 'block';
+                            otherArrow.classList.remove('arrow-up');
+                        }
+                    });
+
+                    // Toggle current submenu
+                    if (submenu.style.display === 'block') {
+                        submenu.style.display = 'none';
+                        arrow.classList.remove('arrow-up');
+                    } else {
+                        submenu.style.display = 'block';
+                        arrow.style.display = 'none';
+                    }
+                });
+            });
+
+            const productsPerPage = 8;
+            let currentPage = 1;
+
+            const productRows = document.querySelectorAll('.product-row');
+            const totalProducts = productRows.length;
+            const totalPages = Math.ceil(totalProducts / productsPerPage);
+            const pageInfo = document.getElementById('page-info');
+
+            function updatePagination() {
+                const start = (currentPage - 1) * productsPerPage;
+                const end = start + productsPerPage;
+
+                productRows.forEach((row, index) => {
+                    row.style.display = (index >= start && index < end) ? '' : 'none';
+                });
+
+                document.getElementById('prev-btn').disabled = (currentPage === 1);
+                document.getElementById('next-btn').disabled = (currentPage === totalPages);
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            }
+
+            document.getElementById('prev-btn').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePagination();
+                }
+            });
+
+            document.getElementById('next-btn').addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePagination();
+                }
+            });
+
+            // Category filtering
+            document.getElementById('category-select').addEventListener('change', function() {
+                const selectedCategory = this.value;
+                productRows.forEach(row => {
+                    const rowCategory = row.getAttribute('data-category');
+                    if (selectedCategory === 'all' || rowCategory === selectedCategory) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                // Reset pagination
+                currentPage = 1;
+                totalProducts = document.querySelectorAll('.product-row:visible').length;
+                totalPages = Math.ceil(totalProducts / productsPerPage);
+                updatePagination();
+            });
+
+            updatePagination(); // Initial call
+        });
+    </script>
+</body>
+</html>
