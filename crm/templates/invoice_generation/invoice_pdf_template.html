@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background-color: #fff;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 40px auto;
+            max-width: 800px;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3c99fc;
+        }
+        .header h1 {
+            font-size: 36px;
+            color: #3c99fc;
+        }
+        .header p {
+            font-size: 16px;
+            color: #444;
+            margin: 0;
+        }
+        .details-section {
+            margin-bottom: 30px;
+        }
+        .company-info, .customer-info, .customer-account-details, .date {
+            font-size: 12px;
+            color: #000000;
+            padding: 5px;
+        }
+        .company-info p, .customer-info p, .customer-account-details p, .date p {
+            margin: 5px 0;
+        }
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        .invoice-table th, .invoice-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        .invoice-table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .total-section {
+            text-align: right;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+        .total-section p {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>Invoice</h1>
+            <p>Company Name: {{invoice.company_name}}</p>
+        </div>
+
+        <div class="details-section">
+            <div class="company-info">
+                <p><strong>Company:</strong> {{ invoice.company_name }}</p>
+                <p><strong>Email:</strong> {{ invoice.company_email }}</p>
+                <p><strong>Contact No:</strong> {{ invoice.company_contact_no }}</p>
+                <p><strong>Invoice Number:</strong> {{ invoice.invoice_no }}</p>
+                <p><strong>Date:</strong> {{ invoice.date }}</p>
+            </div>
+            <div class="customer-info">
+                <p><strong>Customer Name:</strong> {{ invoice.customer.firstname }} {{invoice.customer.lastname}}</p>
+                <p><strong>Customer Email:</strong> {{ invoice.customer.primaryemail }}</p>
+                <p><strong>Designation:</strong> {{ invoice.designation }}</p>
+            </div>
+        </div>
+
+        <div class="details-section">
+            <div class="customer-account-details">
+                <p><strong>HSN/SAC Code:</strong> {{ invoice.hsn_sac_code }}</p>
+                <p><strong>Pan Card No.:</strong> {{ invoice.pan_card_no }}</p>
+                <p><strong>Account Number:</strong> {{ invoice.account_no }}</p>
+                <p><strong>Bank Branch:</strong> {{ invoice.branch }}</p>
+                <p><strong>IFSC Code:</strong> {{ invoice.ifsc_code }}</p>
+            </div>
+            <div class="date">
+                <p><strong>Delivery Date:</strong> {{ invoice.delivery_date }}</p>
+                <p><strong>Dispatch Date:</strong> {{ invoice.dispatched_date }}</p>
+            </div>
+        </div>
+
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Description of Goods</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ invoice.description_of_goods }}</td>
+                    <td>{{ invoice.quantity }}</td>
+                    <td>Rs. {{ invoice.price }}</td>
+                    <td>Rs. {{ invoice.total_amount }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <p><strong>Subtotal (Before Discount):</strong> Rs. {{ invoice.total_amount }}</p>
+            <p><strong>Discount:</strong> {{ invoice.discount }}%</p>
+            <p><strong>Total (With GST):</strong> Rs. {{ invoice.total_amount_with_gst }}</p>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for doing business with us! Please visit again!</p>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -58,57 +58,7 @@
     </style>
 </head>
 <body>
-
-    <div class="sidebar">
-        <div class="logo">
-            <img src="{% static 'images/logo.png' %}" alt="Logo">
-        </div>
-        <ul>
-            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
-            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
-                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
-                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
-                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
-                        <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
-                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
-                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
-                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
-                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
-                        <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
-                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
-                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
-                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
-                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
-                    </ul>
-                </div>
-            </li>
-        </ul>
-    </div>
-
+    {% include 'sidebar.html' %}
 <h1 style="text-align: center;"> Inventory Information</h1>
 
 <div class="table-wrapper">

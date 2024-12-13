@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -8,6 +9,16 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <title>Technician Work List</title>
     <style>
+        .work-container{
+            margin-left: 300px;
+            margin-top: 30px;
+
+        }
+
+        h1{
+            font-family: 'Playfair Display', serif;
+        }
+
         .work-card {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -41,7 +52,7 @@
         .btn-container form {
             margin: 10px;
         }
-        .sidebar {
+        /* .sidebar {
             height: 100vh;
             position: fixed;
             top: 0;
@@ -49,7 +60,7 @@
             width: 200px;
             background-color: #343a40;
             padding-top: 20px;
-        }
+        } */
         .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
@@ -60,20 +71,48 @@
         .sidebar a:hover {
             background-color: #575d63;
         }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 10px; /* Reduced bottom margin */
+            padding: 0; /* Remove any padding */
+        }
+
+        .logo img {
+            max-width: 70%; /* Ensure the logo size is consistent */
+            height: auto;
+            display: block;
+            margin: 0 auto; /* Center the logo horizontally */
+        }
+
+        @media (max-width: 768px) {
+            .work-container{
+                margin-top: 30px;
+                margin-left: 0px;
+                max-width: 100%;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+        }
     </style>
 </head>
 <body>
+
+    {% include 'sidebar.html' %}
     <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="Logo">
+        </div>
         <a href="{% url 'technician_dashboard' %}">Dashboard</a>
-        <a href="{% url 'pending_work' %}">Pending Work</a>
+        <!-- <a href="{% url 'pending_work' %}">Pending Work</a> -->
         <a href="{% url 'work_list' %}"> Work List</a>
         <a href="{% url 'completed_work_list' %}"> Completed Work List</a>
 
-        <button type="submit" class="logout-button">
-            <a href="/logout" style="text-decoration: none; color: black;"><i class="fa-sharp fa-solid fa-right-from-bracket fa-flip-horizontal" style="color: #fa0000;"></i> Logout</a>
+        <button type="submit" class="logout-button" style="margin-left: 30px">
+            <a href="/logout" style="text-decoration: none; color: black; margin-left: 30px; margin-right: 30px"><i class="fa-sharp fa-solid fa-right-from-bracket fa-flip-horizontal" style="color: #fa0000;"></i> Logout</a>
         </button>
     </div>
-    <div class="container" style="margin-left: 220px;">
+    <div class="work-container">
         <h1 class="my-4 text-center">Technician Work List</h1>
         {% for tech_work in work_allocations %}
         <div class="work-card">
@@ -86,18 +125,23 @@
             <p><strong>Work Description:</strong> {{ tech_work.work.work_description }}</p>
             <p><strong>Payment Status:</strong> {{ tech_work.work.customer_payment_status }}</p>
             <p><strong>Payment Amount:</strong> {{ tech_work.work.payment_amount }}</p>
-            <p><strong>Work Allocated On:</strong> {{ tech_work.work.allocated_datetime|date:"d-F-Y H:i" }}</p> 
+            <p><strong>Work Allocated On:</strong> {{ tech_work.work.allocated_datetime|date:"d-F-Y H:i" }}</p>
 
-            
+
+           
             <div class="btn-container">
-                <form action="{% url 'complete_work' tech_work.id %}" method="get">
-                    <button type="submit" class="btn btn-primary">Complete Work</button>
-                </form>
+                {% if  tech_work.status == 'Pending' %}
+                    <form action="{% url 'complete_work' tech_work.id %}" method="get">
+                        <button type="submit" class="btn btn-primary">Complete Work</button>
+                    </form>
+                {% endif %}
             </div>
         </div>
         {% empty %}
-        <p class="text-center">No work allocated.</p>
+            <p class="text-center">No work allocated.</p>
         {% endfor %}
     </div>
 </body>
 </html>
+
+

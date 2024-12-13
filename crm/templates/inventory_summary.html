@@ -13,89 +13,20 @@
             margin: 0;
             font-family: Arial, sans-serif;
         }
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #a69cac;
-            padding-top: 20px;
-            position: fixed;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        .sidebar ul li {
-            padding: 10px;
-            color: black;
-            cursor: pointer;
-            position: relative;
-        }
-        .sidebar ul li:hover {
-            background-color: #555;
-        }
-        .submenu {
-            display: none;
-            background-color: #555;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            z-index: 1;
-        }
-        .submenu ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-        .submenu ul li {
-            padding: 8px 20px;
-            color: white;
-            cursor: pointer;
-        }
-        .submenu ul li:hover {
-            background-color: #777;
-        }
-        .arrow-down {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 10px solid blue;
-        }
-        .arrow-up {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%) rotate(180deg);
-            width: 0;
-            height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 6px solid white;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo img {
-            margin-left: 40px;
-            max-width: 60%;
-            height: auto;
-            display: block;
-        }
+    
         .content {
             flex: 1;
-            margin-left: 250px;
+            max-width: 1000px;
+            width: 100%;
+            margin-left: 400px;
             padding: 20px;
-            background-color: #f4f4f9;
+            background-color: #f8f9fa;
             overflow-y: auto;
         }
         h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 45px;
+            
             text-align: center;
             margin-bottom: 20px;
             color: #333;
@@ -111,16 +42,32 @@
         }
         th, td {
             padding: 12px 15px;
-            border: 1px solid #ddd;
             text-align: left;
+            border: 1px solid #7c7c7c;
+            white-space: nowrap; /* Prevent wrapping */
         }
+
         th {
+            font-family: "Cardo", serif;
+            font-weight: 500;
+            font-size: 17px;
+            font-style: normal;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        td {
+            font-family: "Outfit", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
             background-color: #f9f9f9;
-            color: #555;
         }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
+
+        tr:nth-child(even) td {
+            background-color: #cbcaca;
         }
+
         tr:hover {
             background-color: #e9e9e9;
         }
@@ -163,60 +110,25 @@
             font-weight: bold;
             color: #007bff;
         }
+
+        @media (max-width: 768px) {
+            .content{
+                margin-top: 20px;
+                margin-left: 0;
+                max-width: 100%;
+            }
+
+            .customer-details{
+                overflow: auto;
+            }
+
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">
-            <img src="{% static 'images/logo.png' %}" alt="Logo">
-        </div>
-        <ul>
-            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
-            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
-                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
-                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
-                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
-                        <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
-                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
-                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
-                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
-                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
-                        <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
-                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
-                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
-                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
-                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
-                    </ul>
-                </div>
-            </li>
-        </ul>
-    </div>
+    {% include 'sidebar.html' %}
     <div class="content">
-        <h1>Inventory Summary</h1>
+        <h1 style="font-weight: 700;margin: 20px;">Inventory Summary</h1>
         <div id="searchResults">
             {% if message %}
                 <p>{{ message }}</p>
@@ -233,11 +145,11 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="background-color: #332D2D; color: wheat;">Product</th>
-                                    <th style="background-color: #332D2D; color: wheat;">Quantity</th>
-                                    <th style="background-color: #332D2D; color: wheat;">Price per Unit</th>
-                                    <th style="background-color: #332D2D; color: wheat;">Total Price</th>
-                                    <th style="background-color: #332D2D; color: wheat;">Date Added</th> 
+                                    <th style="background-color: #ffffff; color: rgb(0, 0, 0);">Product</th>
+                                    <th style="background-color: #ffffff; color: rgb(0, 0, 0);">Quantity</th>
+                                    <th style="background-color: #ffffff; color: rgb(0, 0, 0);">Price per Unit</th>
+                                    <th style="background-color: #ffffff; color: rgb(0, 0, 0);">Total Price</th>
+                                    <th style="background-color: #ffffff; color: rgb(0, 0, 0);">Date Added</th> 
                                 </tr>
                             </thead>
                             <tbody>
@@ -251,12 +163,12 @@
                                     </tr>
                                 {% empty %}
                                     <tr>
-                                        <td colspan="4" class="no-data">No products available.</td>
+                                        <td colspan="5" class="no-data">No products available.</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <h3 style="background-color: red; display: inline; color: black;" >Total Price: Rs.{{ summary.total_price }}</h3>
+                        <h3 style="background-color: rgb(60, 60, 60); display: inline; color: rgb(255, 255, 255);border-radius: 10px;padding: 7px;" >Total Price: Rs.{{ summary.total_price }}</h3>
                     </div>
                 {% empty %}
                     <p>No inventory data available.</p>

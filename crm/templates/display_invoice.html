@@ -14,37 +14,119 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&family=Cardo:ital@0;1&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        .container-table {
-    overflow-x: auto; /* Horizontal scrollbar */
-    width: calc(100% - 250px); /* Adjust width to account for scrollbar */
-    margin: auto;
-    max-width: 100%;
-    padding: 0 20px; /* Add padding for spacing */
-    margin-left: 250px; /* Offset scrollbar by 250px */
-}
-
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            margin-top: 20px; /* Adjust margin as needed */
+        /* Body Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #dedede;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
+
+        /* Title Styling */
+        h1 {
+            color: #03AED2;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 500;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Content Layout */
+        .table-wrapper {
+            margin-left: 285px; /* Offset for sidebar */
+            max-width: calc(100% - 250px); /* Account for sidebar */
+            padding: 20px;
+            /* border: 1px solid black ; */
+        }
+        .container-table {
+            overflow-x: auto; /* Horizontal scrollbar */
+            width: calc(100%); /* Adjust width to account for scrollbar */
+            margin: auto;
+            max-width: 100%;
+            padding: 0 20px; /* Add padding for spacing */
+            
+        }
+
+        /* Table Styling */
         table {
             width: 100%;
             border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
         }
+
         th, td {
-            border: 1px solid black;
-            padding: 8px;
+            padding: 12px 15px;
             text-align: left;
+            border: 1px solid #7c7c7c;
             white-space: nowrap; /* Prevent wrapping */
         }
+
         th {
-            background-color: #f2f2f2;
+            font-family: "Cardo", serif;
+            font-weight: 500;
+            font-size: 17px;
+            font-style: normal;
+            color: #ffffff;
+            font-weight: bold;
         }
+
         td {
+            font-family: "Outfit", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #cbcaca;
+        }
+
+        /* Button Styling */
+        .btn-like {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: #343434;
+            border: none;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            margin-right: 5px;
+        }
+
+        .btn-like:hover {
+            background-color: #343434;
+        }
+
+        /* Search Bar Styling */
+        .navbar {
+            padding: 10px;
             background-color: #ffffff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-inline .form-control {
+            border: 1px solid #000000;
+            color: #000000;
+        }
+        
+        .form-inline .btn-outline-success {
+            color: #000000;
+            border: 1px solid #000000;
+        }
+
+        .form-inline .btn-outline-success:hover {
+            background-color: #707070;
+            color: #ffffff;
         }
         .edit-delete-buttons {
             white-space: nowrap; /* Prevent wrapping for buttons */
@@ -79,32 +161,32 @@
         background-color: #218838;
     }
 
-        .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.4);
-}
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
 
         .modal-buttons {
             display: flex;
@@ -114,63 +196,30 @@
         .modal-buttons button {
             padding: 10px 20px;
         }
+
+        /* On small screens, set margin to 0 when sidebar is hidden */
+        @media (max-width: 768px) {
+            .table-wrapper {
+                margin-left: 0;
+                margin-top: 10px;
+                max-width: 100%;
+                padding: 20px; /* Add some padding for better appearance */
+            }
+
+            .open-sidebar .table-wrapper {
+                margin-left: 300px; /* Adjust content when sidebar is open */
+            }
+
+        }
     </style>
 </head>
 <body>
+    {% include 'sidebar.html' %}
 
-    <div class="sidebar">
-        <div class="logo">
-            <img src="{% static 'images/logo.png' %}" alt="Logo">
-        </div>
-        <ul>
-            <a href="/index" style="text-decoration: none;"><li id="dashboard">Dashboard</li></a>
-            <li id="master" class="has-submenu">Display Information <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/display_customer" style="text-decoration: none;"><li>1.Customer Details</li></a>
-                        <a href="/display_service_management" style="text-decoration: none;"><li>2.Service Management</li></a>
-                        <a href="/display_quotation" style="text-decoration: none;"><li>3.Quotation</li></a>
-                        <a href="/display_invoice" style="text-decoration: none;"><li>4.Invoice</li></a>
-                        <!-- <a href="/display_inventory" style="text-decoration: none;"><li>5.Inventory</li></a> -->
-                        <a href="/display_lead_management" style="text-decoration: none;"><li>5.Lead Management</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Master <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/customer_details_create" style="text-decoration: none;"><li>1.Customer Details</li></a>
-                        <a href="/service_management_create" style="text-decoration: none;"><li>2.Service Management</li></a>
-                        <a href="/quotation_create" style="text-decoration: none;"><li>3.Quotation</li></a>
-                        <a href="/invoice_create" style="text-decoration: none;"><li>4.Invoice</li></a>
-                        <!-- <a href="/inventory_create" style="text-decoration: none;"><li>5.Inventory</li></a> -->
-                        <a href="/lead_management_create" style="text-decoration: none;"><li>5.Lead Management</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Products <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/add_product" style="text-decoration: none;"><li>1.Add Products</li></a>
-                        <a href="/update_product" style="text-decoration: none;"><li>2.Update Products</li></a>
-                        <a href="/products" style="text-decoration: none;"><li>3.All Products</li></a>
-                    </ul>
-                </div>
-            </li>
-            <li id="master" class="has-submenu">Services <span class="arrow-down"></span>
-                <div class="submenu">
-                    <ul>
-                        <a href="/inventory_service" style="text-decoration: none;"><li>1.Inventory Service</li></a>
-                        <a href="/inventory_summary" style="text-decoration: none;"><li>2.Inventory Summary / History</li></a>
-                    </ul>
-                </div>
-            </li>
-        </ul>
-    </div>
 
-<h1 style="text-align: center;">Invoice Information</h1>
 
 <div class="table-wrapper">
+    <h1>Invoice Information</h1>
     <div class="container-table">
       
       
@@ -184,76 +233,101 @@
           <div id="searchResults"></div> -->
         
         
-          <table border="2" align="center">
-            <tr>
-                <th>Sr.No</th>
-                <th>Customer ID</th>
-                <th>Mode Of Payment</th>
-                <th>Dispatched Through</th>
-                <th>Terms Of Delivery</th>
-                <th>Terms and Conditions</th>
-                <th>Company Name</th>
-                <th>Company Email</th>
-                <th>Company Contact No.</th>
-                <th>Invoice No.</th>
-                <th>Date</th>
-                <th>Description Of Goods</th>
-                <th>HSN/SAC Code</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Discount</th>
-                <th>GST Checkbox</th>
-                <th>Total Amount</th>
-                <th>Total Amount with GST</th>
-                <th>Total Amount in Words</th>
-                <th>PAN Card No.</th>
-                <th>Account No.</th>
-                <th>Branch</th>
-                <th>IFSC Code</th>
-                <th>Delivery Date</th>
-                <th>Dispatched Date</th>
-                <th>Designation</th>
-                
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-            {% for x in data %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ x.customer }}</td>
-                <td>{{ x.modeofpayment }}</td>
-                <td>{{ x.dispatchedthrough }}</td>
-                <td>{{ x.termofdelivery }}</td>
-                <td>{{ x.termsandcondition }}</td>
-                <td>{{ x.company_name }}</td>
-                <td>{{ x.company_email }}</td>
-                <td>{{ x.company_contact_no }}</td>
-                <td>{{ x.invoice_no }}</td>
-                <td>{{ x.date }}</td>
-                <td>{{ x.description_of_goods }}</td>
-                <td>{{ x.hsn_sac_code }}</td>
-                <td>{{ x.quantity }}</td>
-                <td>{{ x.price }}</td>
-                <td>{{ x.discount }}</td>
-                <td>{{ x.gst_checkbox }}</td>
-                <td>{{ x.total_amount }}</td>
-                <td>{{ x.total_amount_with_gst }}</td>
-                <td>{{ x.total_amount_in_words }}</td>
-                <td>{{ x.pan_card_no }}</td>
-                <td>{{ x.account_no }}</td>
-                <td>{{ x.branch }}</td>
-                <td>{{ x.ifsc_code }}</td>
-                <td>{{ x.delivery_date }}</td>
-                <td>{{ x.dispatched_date }}</td>
-                <td>{{ x.designation }}</td>
-                
-                <td><a href="/edit_invoice/{{ x.id }}" class="btn btn-success" role="button">Edit</a></td>
-                <td><a href="/delete_invoice/{{ x.id }}" class="btn btn-danger delete-link" role="button">Delete</a></td>
-                
-            </tr>
-            {% endfor %}
-        </table>
-        
+          <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Customer ID</th>
+                    <th>Mode Of Payment</th>
+                    <th>Dispatched Through</th>
+                    <th>Terms Of Delivery</th>
+                    <th>Terms and Conditions</th>
+                    <th>Company Name</th>
+                    <th>Company Email</th>
+                    <th>Company Contact No.</th>
+                    <th>Invoice No.</th>
+                    <th>Date</th>
+                    <th>Description Of Goods</th>
+                    <th>HSN/SAC Code</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Discount</th>
+                    <th>GST Checkbox</th>
+                    <th>Total Amount</th>
+                    <th>Total Amount with GST</th>
+                    <th>Total Amount in Words</th>
+                    <th>PAN Card No.</th>
+                    <th>Account No.</th>
+                    <th>Branch</th>
+                    <th>IFSC Code</th>
+                    <th>Delivery Date</th>
+                    <th>Dispatched Date</th>
+                    <th>Designation</th>
+                    <th>Make Payment</th>
+                    <th>Download PDF</th>
+                    <th>View PDF</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for x in data %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ x.customer }}</td>
+                    <td>{{ x.modeofpayment }}</td>
+                    <td>{{ x.dispatchedthrough }}</td>
+                    <td>{{ x.termofdelivery }}</td>
+                    <td>{{ x.termsandcondition }}</td>
+                    <td>{{ x.company_name }}</td>
+                    <td>{{ x.company_email }}</td>
+                    <td>{{ x.company_contact_no }}</td>
+                    <td>{{ x.invoice_no }}</td>
+                    <td>{{ x.date }}</td>
+                    <td>{{ x.description_of_goods }}</td>
+                    <td>{{ x.hsn_sac_code }}</td>
+                    <td>{{ x.quantity }}</td>
+                    <td>{{ x.price }}</td>
+                    <td>{{ x.discount }}</td>
+                    <td>{{ x.gst_checkbox }}</td>
+                    <td>{{ x.total_amount }}</td>
+                    <td>{{ x.total_amount_with_gst }}</td>
+                    <td>{{ x.total_amount_in_words }}</td>
+                    <td>{{ x.pan_card_no }}</td>
+                    <td>{{ x.account_no }}</td>
+                    <td>{{ x.branch }}</td>
+                    <td>{{ x.ifsc_code }}</td>
+                    <td>{{ x.delivery_date }}</td>
+                    <td>{{ x.dispatched_date }}</td>
+                    <td>{{ x.designation }}</td>
+                    <td>
+                        <!-- <form action="{% url 'create_paypal_payment' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Pay with PayPal</button>
+                        </form> -->
+                        <form method="POST" action="{% url 'create_paypal_payment' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="customer_id" value="{{ x.customer }}">
+                            <input type="hidden" name="total_amount_with_gst" value="{{ x.total_amount_with_gst }}">
+                            <input type="hidden" name="company_name" value="{{ x.company_name }}">
+                            
+                            <!-- Additional invoice details can go here -->
+                            
+                            <button type="submit" class="btn btn-primary">Pay Now</button>
+                        </form>
+                    </td>    
+
+                    <td><a href="generate_invoice/invoice/pdf/{{ x.id }}/{{ 'download' }}" class="btn btn-primary" role="button">Download PDF</a></td>  <!-- Link to download the PDF -->
+                    <td><a href="generate_invoice/invoice/pdf/{{ x.id }}/{{ 'view' }}" class="btn btn-secondary" role="button">View PDF</a></td>  <!-- Link to view the PDF -->
+                        
+
+                    <td><a href="/edit_invoice/{{ x.id }}" class="btn btn-success" role="button">Edit</a></td>
+                    <td><a href="/delete_invoice/{{ x.id }}" class="btn btn-danger delete-link" role="button">Delete</a></td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>   
+        </table>   
     </div>
 </div>
 

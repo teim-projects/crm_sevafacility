@@ -3,10 +3,7 @@ import random
 from django.contrib.auth.models import User
 from django.utils import timezone
 from num2words import num2words
-
-
-
-
+from django.contrib.auth.models import User
 
 
 def generate_customerid():
@@ -34,103 +31,46 @@ class customer_details(models.Model):
     soldtopartypostal=models.CharField(max_length=100)
     customerid = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
-    
+
+   
     def __str__(self):
         return self.firstname + " " + self.lastname
-    
+   
     def __str__(self):
         return self.customerid
 
 
-   
-    
-# class service_management(models.Model):
-
-#     # pestcontrolservice=models.CharField(max_length=100)
-#     services=models.CharField(max_length=100)
-    
 
 
 from django.db import models
 from django.utils import timezone
 
+
 class Product(models.Model):
+    product_id = models.AutoField(primary_key=True)
+    product_name = models.CharField(max_length=255)
+    # price = models.DecimalField(max_digits=10, decimal_places=2)
+    # quantity = models.PositiveIntegerField()
+   
     CATEGORY_CHOICES = [
         ('Pest Control', 'Pest Control'),
         ('Fumigation', 'Fumigation'),
         ('Product Sell', 'Product Sell'),
     ]
-
-    product_id = models.AutoField(primary_key=True)
-    product_name = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.PositiveIntegerField()
+   
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="NULL")
+
 
     def __str__(self):
         return self.product_name
+
 
     def delete_product(self):
         self.delete()
 
 
-class service_management(models.Model):
-    customer_name=models.CharField(max_length=100 , default="Null")
-    customer_contact=models.BigIntegerField(null=True)
-    customer_email=models.EmailField(null=True)
-    servicetype = models.CharField(max_length=100, choices=Product.CATEGORY_CHOICES , null=True)
-    services = models.ManyToManyField(Product)  # Multi-selected option
-    # total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    gst_checkbox = models.BooleanField(default=False)
-    gst_status = models.CharField(max_length=10, default='NON-GST')
-    total_charges = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    total_price_with_gst = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)    
-    contract_type = models.CharField(max_length=50, choices=[('One Time', 'One Time'), ('AMC', 'AMC'), ('Warranty', 'Warranty')] , default="NOT SELECTED")
-    contract_status = models.CharField(
-    max_length=100,
-    choices=[('Yes', 'Yes'), ('No', 'No')],
-    default="NOT SELECTED"
-)
 
-    property_type = models.TextField(null=True, blank=True)
-    warranty_period = models.CharField(max_length=50, null=True, blank=True)
-    state = models.CharField(max_length=100 , default="Null")  # To be populated with a list of Indian states
-    city = models.CharField(max_length=100 , default="Null")
-    pincode = models.CharField(max_length=6 , default=0000)
-    address = models.TextField(default="Null")
-    gps_location = models.URLField(null=True, blank=True)
-    gst_number = models.CharField(max_length=15, null=True, blank=True)  # Only enabled if gst_checkbox is True
-    frequency_count = models.CharField(
-    max_length=50,
-    choices=[(str(i), str(i)) for i in range(1, 13)] + [
-        ('Fortnight', 'Fortnight'),
-        ('Weekly', 'Weekly'),
-        ('Daily', 'Daily')
-    ],
-    default="NOT SELECTED"
-    )
-    payment_terms = models.CharField(max_length=200, default="100% Advance payment OR Whatever mutually Decided", editable=False)
-    sales_person_name = models.CharField(max_length=100, null=True, blank=True)
-    sales_person_contact_no = models.CharField(max_length=15, null=True, blank=True)
-    lead_date = models.DateField(default=timezone.now)
-    service_date = models.DateField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        # Calculate total price from selected services
-        total = sum(service.price for service in self.services.all())
-        self.total_price = total
-
-        # Apply GST if applicable
-        if self.gst_checkbox:
-            self.gst_status = "GST"
-            self.total_price_with_gst = total * 1.18  # GST 18%
-        else:
-            self.gst_status = "NON-GST"
-            self.total_price_with_gst = total
-        
-        super().save(*args, **kwargs)
-    
 
 class quotation(models.Model):
     quantity=models.IntegerField()
@@ -149,10 +89,14 @@ class quotation(models.Model):
     termsandcondition = models.CharField(max_length=200 , null=True)
     gst_checkbox = models.BooleanField(default=False)
     customer = models.ForeignKey(customer_details, on_delete=models.CASCADE, null=True, blank=True)
+    version = models.IntegerField(default=1)  # Added version field
+    status = models.CharField(max_length=20, default='active')  # Added status field
+
 
     def save(self, *args, **kwargs):
         self.total_amount = self.quantity * self.price  # Calculate total amount
         super().save(*args, **kwargs)
+
 
     def save(self, *args, **kwargs):
         if self.gst_checkbox:
@@ -160,7 +104,8 @@ class quotation(models.Model):
         else:
             self.gst_status = "NON-GST"
         super().save(*args, **kwargs)
-    
+   
+
 
     def save(self, *args, **kwargs):
         if self.discount:
@@ -168,12 +113,20 @@ class quotation(models.Model):
         else:
             discounted_amount = self.total_amount
 
+
         if self.gst_checkbox:
             self.total_amount_with_gst = discounted_amount * 1.18  # Adding 18% GST
         else:
             self.total_amount_with_gst = discounted_amount
 
+
         super().save(*args, **kwargs)
+
+
+    class Meta:
+        ordering = ['-version']  # Order quotations by the latest version
+
+
 
 
 class invoice(models.Model):
@@ -204,24 +157,31 @@ class invoice(models.Model):
     designation = models.CharField(max_length=20, choices=[('Indoor', 'Indoor'), ('Outdoor', 'Outdoor')], default='Null')
     customer = models.ForeignKey(customer_details, on_delete=models.CASCADE, null=True, blank=True)
 
+
     def save(self, *args, **kwargs):
         if not self.invoice_no:
             self.invoice_no = self.generate_invoice_no()
 
+
         self.total_amount = self.quantity * self.price  # Calculate total amount
+
 
         discounted_amount = self.total_amount
         if self.discount:
             discounted_amount = self.total_amount - (self.total_amount * (self.discount / 100))
+
 
         if self.gst_checkbox:
             self.total_amount_with_gst = round(discounted_amount * 1.18, 2)  # Adding 18% GST and rounding to 2 decimal places
         else:
             self.total_amount_with_gst = round(discounted_amount, 2)  # Rounding to 2 decimal places
 
+
         self.total_amount_in_words = self.convert_amount_to_words(self.total_amount_with_gst)
 
+
         super().save(*args, **kwargs)
+
 
     def save(self, *args, **kwargs):
         if self.gst_checkbox:
@@ -230,14 +190,18 @@ class invoice(models.Model):
             self.gst_status = "NON-GST"
         super().save(*args, **kwargs)
 
+
     def generate_invoice_no(self):
         return ''.join(random.choices('0123456789', k=11))
+
 
     def convert_amount_to_words(self, amount):
         return num2words(amount, to='currency', lang='en').replace('euro', 'rupees').replace('cents', 'paise')
 
+
     def __str__(self):
         return f"Invoice No: {self.invoice_no}"
+
 
 # class inventory(models.Model):
 #     itemnumber=models.IntegerField()
@@ -245,11 +209,13 @@ class invoice(models.Model):
 #     price=models.IntegerField()
 #     quantity=models.IntegerField()
 
+
 class lead_management(models.Model):
     sourceoflead = models.CharField(max_length=100)
     salesperson = models.CharField(max_length=100)
     havedonepestcontrolearlier = models.CharField(max_length=100)
     leadstatus = models.CharField(max_length=100, choices=[('Call', 'Call'), ('Visit', 'Visit'), ('Quotation', 'Quotation')])
+    typeoflead = models.CharField(max_length=100,null=True, choices=[('Hot','Hot'),('Warm','Warm'),('Cold','Cold'),('Not Interested','Not Interested'),('Loss of Order','Loss of Order')])
     typeofcontract = models.CharField(max_length=100, choices=[('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')])
     dateoflead = models.DateField(default=timezone.now)
     contactno = models.BigIntegerField(null=True)
@@ -257,36 +223,13 @@ class lead_management(models.Model):
     customeraddress = models.CharField(max_length=255 , null=True)
     visitorsname=models.CharField(max_length=200 , default='Null')
 
+
     def __str__(self):
         return self.sourceoflead
 
 
-
 # In crmapp/models.py
 
-
-
-# from django.db import models
-# from django.utils import timezone
-
-# class Product(models.Model):
-#     CATEGORY_CHOICES = [
-#         ('Pest Control', 'Pest Control'),
-#         ('Fumigation', 'Fumigation'),
-#         ('Product Sell', 'Product Sell'),
-#     ]
-
-#     product_id = models.AutoField(primary_key=True)
-#     product_name = models.CharField(max_length=255)
-#     price = models.DecimalField(max_digits=10, decimal_places=2)
-#     quantity = models.PositiveIntegerField()
-#     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="NULL")
-
-#     def __str__(self):
-#         return self.product_name
-
-#     def delete_product(self):
-#         self.delete()
 
 
 
@@ -294,9 +237,12 @@ class Inventory_add(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
+
     def __str__(self):
         return f'{self.product.product_name} - {self.quantity}'
-    
+   
+
+
 
 
 class Inventory_summary(models.Model):
@@ -307,23 +253,28 @@ class Inventory_summary(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     date_added = models.DateTimeField(default=timezone.now)
 
+
     @property
     def product_name(self):
         return self.product.product_name
+
 
     @property
     def price_per_unit(self):
         return self.product.price
 
 
-    
+
+
+   
     def save(self, *args, **kwargs):
         self.total_price = self.quantity * self.product.price
         super().save(*args, **kwargs)
 
+
     def __str__(self):
         return f'{self.customer_details.firstname} - {self.product.product_name} - {self.total_price}'
-    
+   
 class TechnicianProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=100)
@@ -337,9 +288,43 @@ class TechnicianProfile(models.Model):
     date_of_joining = models.DateField(default=timezone.now)
     password = models.CharField(max_length=128)  # This should not be needed if you are using Django's User model
 
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+
+class service_management(models.Model):
+    customer_name = models.CharField(max_length=100, default="Null")
+    customer_contact = models.BigIntegerField(null=True)
+    customer_email = models.EmailField(null=True)
+    selected_services = models.ManyToManyField(Product, related_name="selected_services")
+    gst_checkbox = models.BooleanField(default=False)
+    gst_status = models.CharField(max_length=10, default='NON-GST')
+    total_charges = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    total_price_with_gst = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)    
+    contract_type = models.CharField(max_length=50, choices=[('One Time', 'One Time'), ('AMC', 'AMC'), ('Warranty', 'Warranty')], default="NOT SELECTED")
+    contract_status = models.CharField(max_length=100, choices=[('Yes', 'Yes'), ('No', 'No')], default="NOT SELECTED")
+    property_type = models.TextField(null=True, blank=True)
+    warranty_period = models.CharField(max_length=50, null=True, blank=True)
+    state = models.CharField(max_length=100, default="Null")
+    city = models.CharField(max_length=100, default="Null")
+    pincode = models.CharField(max_length=6, default="000000")
+    address = models.TextField(default="Null")
+    gps_location = models.URLField(null=True, blank=True)
+    gst_number = models.CharField(max_length=15, null=True, blank=True)
+    frequency_count = models.CharField(max_length=50, choices=[(str(i), str(i)) for i in range(1, 13)] + [('Fortnight', 'Fortnight'), ('Weekly', 'Weekly'), ('Daily', 'Daily')], default="NOT SELECTED")
+    payment_terms = models.CharField(max_length=200, default="100% Advance payment OR Whatever mutually Decided", editable=False)
+    sales_person_name = models.CharField(max_length=100, null=True, blank=True)
+    sales_person_contact_no = models.CharField(max_length=15, null=True, blank=True)
+    lead_date = models.DateField(default=timezone.now)
+    service_date = models.DateField(null=True, blank=True)
+    technician = models.ForeignKey(TechnicianProfile, on_delete=models.CASCADE, default=None, null=True, blank=True)
+
+
+    def __str__(self):
+        selected_services = ', '.join([str(service) for service in self.selected_services.all()])
+        return f'Service Management - {self.customer_name} ({selected_services})'
 
 class WorkAllocation(models.Model):
     technician = models.ForeignKey(TechnicianProfile, on_delete=models.CASCADE)
@@ -350,32 +335,48 @@ class WorkAllocation(models.Model):
     customer_payment_status = models.CharField(max_length=20, choices=[('Completed', 'Completed'), ('Pending', 'Pending')])
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     allocated_datetime = models.DateTimeField(default=timezone.now)
-
-   
     created_at = models.DateTimeField(auto_now_add=True)
 
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
-        ('Accepted', 'Accepted'),
-        ('Rejected', 'Rejected'),
+        ('Completed', 'Completed'),
+        ('workdesk','workdesk'),
     ]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
+
     def __str__(self):
         return f"Work Allocation for {self.customer_name} ({self.status})"
-    
+   
+
+# class TechWorkList(models.Model):
+#     technician = models.ForeignKey(User, on_delete=models.CASCADE)
+#     work = models.ForeignKey(WorkAllocation, on_delete=models.CASCADE)
+#     status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Completed', 'Completed')], default='Pending')
+#     photo_before_service = models.ImageField(upload_to='photos/before/', blank=True, null=True)
+#     photo_after_service = models.ImageField(upload_to='photos/after/', blank=True, null=True)
+#     customer_signature_photo = models.ImageField(upload_to='photos/signatures/', blank=True, null=True)
+#     payment_photo = models.ImageField(upload_to='photos/payments/', blank=True, null=True)
+#     completion_datetime = models.DateTimeField(default=timezone.now)
+
+
+#     def __str__(self):
+#         return f"Work {self.work.id} by {self.technician.username}"
+
+
+class UploadedFile(models.Model):
+    file = models.FileField(upload_to='uploads/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class TechWorkList(models.Model):
     technician = models.ForeignKey(User, on_delete=models.CASCADE)
     work = models.ForeignKey(WorkAllocation, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Completed', 'Completed')], default='Pending')
-    photo_before_service = models.ImageField(upload_to='photos/before/', blank=True, null=True)
-    photo_after_service = models.ImageField(upload_to='photos/after/', blank=True, null=True)
+    photos_before_service = models.ManyToManyField(UploadedFile, related_name='photos_before_service', blank=True)
+    photos_after_service = models.ManyToManyField(UploadedFile, related_name='photos_after_service', blank=True)
     customer_signature_photo = models.ImageField(upload_to='photos/signatures/', blank=True, null=True)
-    payment_photo = models.ImageField(upload_to='photos/payments/', blank=True, null=True)
-    completion_datetime = models.DateTimeField(default=timezone.now) 
+    payment_photos = models.ManyToManyField(UploadedFile, related_name='payment_photos', blank=True)
+    completion_datetime = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"Work {self.work.id} by {self.technician.username}"
-    
-
