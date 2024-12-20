@@ -97,13 +97,13 @@
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="customer_name">Customer Name:</label>
-                        <input type="text" name="customer_name" id="customer_name" required>
+                        <input type="text" name="customer_name" id="customer_name" value="{{ customer_fname }} {{customer_lname}}" required readonly>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label for="customer_phone_number">Customer Phone Number:</label>
-                        <input type="text" name="customer_phone_number" id="customer_phone_number" required>
+                        <input type="text" name="customer_phone_number" id="customer_phone_number" value="{{ customer_contact }}" required readonly>
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="customer_address">Customer Address:</label>
@@ -126,7 +126,11 @@
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label for="payment_amount">Payment Amount:</label>
-                        <input type="number" name="payment_amount" id="payment_amount" step="0.01" required>
+                        <input type="number" name="payment_amount" id="payment_amount" value="{{ payment_amount }}" step="0.01" required readonly>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="gps_location">GPS Location:</label>
+                        <input type="url" name="gps_location" id="gps_location" value="{{ gps_location }}" step="0.01" required readonly>
                     </div>
                 </div>
                 <div class="form-group">

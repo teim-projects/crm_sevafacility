@@ -274,19 +274,38 @@
                 <h3 style="font-size: 45px; font-weight: 600; margin: 10px;">Service Management Record</h3>
                 <form method="POST" id="service-management-form">      
                     {% csrf_token %}
-                    <label for="customer_name">Customer Name:</label>
-                    <input type="text" name="customer_name" required><br>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div data-mdb-input-init class="form-outline">
+                                <select id="customer_id" class="form-control form-control-lg" name="customer_id" onchange="updateCustomerDetails()">
+                                    <option value="" disabled selected>Select Customer</option>
+                                    {% for customer in customers %}
+                                    <option value="{{ customer.id }}" 
+                                            data-contact="{{ customer.primarycontact }}" 
+                                            data-email="{{ customer.primaryemail }}">
+                                        {{ customer.customerid }} - {{ customer.firstname }} {{ customer.lastname }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                          </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div data-mdb-input-init class="form-outline">
+                                <label for="customer_contact">Customer Contact:</label>
+                            <input type="text" id="customer_contact" name="customer_contact" value="" required readonly><br>
+                            </div>
+                          </div>
+                          <div class="col-md-6 mb-4">
+                            <div data-mdb-input-init class="form-outline">
+                                <label for="customer_email">Customer Email:</label>
+                                <input type="text" id="customer_email" name="customer_email" value="" required readonly><br>
+                            </div>
+                          </div>
+                    </div>
 
-
-                    <label for="customer_contact">Customer Contact:</label>
-                    <input type="text" name="customer_contact" required><br>
-
-
-                    <label for="customer_email">Customer Email:</label>
-                    <input type="email" name="customer_email"><br>
-
-
-
+                    
 
                     <label for="servicetype">Service Type:</label>
                     <select id="servicetype" name="servicetype" onchange="fetchProducts(this)">
@@ -337,7 +356,7 @@
 
 
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="apply_gst" onchange="toggleGST()">
+                        <input type="checkbox" class="form-check-input" id="apply_gst" name="apply_gst" onchange="toggleGST()">
                         <label class="form-check-label" for="apply_gst">Apply GST (18%)</label>
                     </div>
                     <div id="gst-number-container">
@@ -480,6 +499,8 @@
                     <label for="sales_person_contact_no">Sales Person Contact No:</label>
                     <input type="text" name="sales_person_contact_no"><br>
 
+                    <label for="delivery_time">Delivery Time</label>
+                    <input type="time" class="form-control" id="delivery_time" name="delivery_time" required>
 
                     <label for="lead_date">Lead Date:</label><br>
                     <input type="date" name="lead_date" required><br>
@@ -487,70 +508,9 @@
                     <label for="service_date">Service Date:</label><br>
                     <input type="date" name="service_date" required><br>
 
-                    <!-- <label for="allocate_work">Allocate Work to Technician:</label><br>
-<select name="technician" id="technician" required>
-    <option value="">Select Technician</option>
-    {% for technician in technicians %}
-        <option value="{{ technician.id }}">{{ technician.name }} - {{ technician.contact }}</option>
-    {% endfor %}
-</select><br> -->
-
-                    <!-- Your existing form fields -->
-
-<button type="button" id="allocate_work_button">Allocate Work</button>
-
-<!-- Hidden technician list that will be shown when the button is clicked -->
-<div id="technician_list" style="display: none;">
-    <h3>Select Technician</h3>
-    <form method="POST" action="{% url 'allocate_work' %}">
-        {% csrf_token %}
-        <select name="technician" required>
-            <option value="">Select Technician</option>
-            {% for technician in technicians %}
-            <p>{{ technician.first_name }} {{ technician.last_name }} - {{ technician.contact_number }}</p>
-            <option value="{{ technician.id }}">
-                {{ technician.first_name }} {{ technician.last_name }} - {{ technician.contact_number }}
-            </option>
-                {% empty %}
-                <p> no tech found</p>
-                <option value="">No technicians available</option>
-            {% endfor %}
-        </select>
-   
-                <label for="work_description">Work Description:</label>
-                <textarea name="work_description" id="work_description" required></textarea>
-            
-          
-                <label for="customer_payment_status">Payment Status:</label>
-                <select name="customer_payment_status" id="customer_payment_status">
-                    <option value="Completed">Completed</option>
-                    <option value="Pending">Pending</option>
-                </select>
-           
-       
-        
-            
-                <label for="payment_amount">Payment Amount:</label>
-                <input type="number" name="payment_amount" id="payment_amount" step="0.01" required>
-                
-                <div class="mt-4 pt-2 text-center" style="font-family: 'Playfair Display', serif;color:antiquewhite; font-weight: 900;">
-                    <button class="btn btn-info btn-lg" type="submit">Allocate Work</button>
-                </div>
-        
-    </form>
-</div>
-
-<script>
-    // JavaScript to show technician list when button is clicked
-    document.getElementById("allocate_work_button").addEventListener("click", function() {
-        var technicianList = document.getElementById("technician_list");
-        if (technicianList.style.display === "none") {
-            technicianList.style.display = "block";
-        } else {
-            technicianList.style.display = "none";
-        }
-    });
-</script>
+                    <div class="mt-4 pt-2 text-center" style="font-family: 'Playfair Display', serif;color:antiquewhite; font-weight: 900;">
+                        <button class="btn btn-info btn-lg" type="submit">Submit</button>
+                    </div>
                     
                 </form>
             </div>
@@ -599,6 +559,18 @@
                     });
                 });
             });
+    </script>
+    <script>
+        function updateCustomerDetails() {
+            const customerSelect = document.getElementById("customer_id");
+            const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+    
+            const contact = selectedOption.getAttribute("data-contact");
+            const email = selectedOption.getAttribute("data-email");
+    
+            document.getElementById("customer_contact").value = contact || '';
+            document.getElementById("customer_email").value = email || '';
+        }
     </script>
     <script>
         let selectedProducts = [];
@@ -767,7 +739,16 @@
             updateTotalPrice();
         }
 
+        function updateCustomerDetails() {
+        const customerSelect = document.getElementById("customer_id");
+        const selectedOption = customerSelect.options[customerSelect.selectedIndex];
 
+        const contact = selectedOption.getAttribute("data-contact");
+        const email = selectedOption.getAttribute("data-email");
+
+        document.getElementById("customer_contact").value = contact || '';
+        document.getElementById("customer_email").value = email || '';
+    }
 
     </script>
     

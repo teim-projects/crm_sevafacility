@@ -4,19 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Management Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/customer.css' %}">
     <script src="{% static 'js/script.js' %}"></script>
-    <title>Edit Service Management</title>
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <style>
+
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f0fbff;
-            color: #333;
+            color: #333333;
         }
+
+
         .main-container {
             display: flex;
             justify-content: center;
@@ -24,40 +26,215 @@
             min-height: 100vh;
             padding: 20px;
 
+
         }
+
+
         .card-registration {
             border-radius: 15px;
             background-color: #ffffff;
             box-shadow: 0 4px 20px rgba(3, 174, 210, 0.2);
             width: 100%;
-            max-width: 800px;
+            max-width: 700px;
             margin-left: 250px;
             margin-top: 30px;
         }
+
+
         h3 {
             text-align: center;
             font-family: 'Playfair Display', serif;
-            font-weight: 900;
             color: #03AED2;
             margin-bottom: 30px;
         }
-        h6 {
+        .switch {
+            position: relative;
+            display: inline-block;
+            margin-top: 10px;
+            width: 55px;
+            height: 26px;
+        }
+
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ffffff;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+
+        .gst-toggle-label {
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+            margin-bottom: 35px;
+        }
+
+
+        .form-check {
+            margin-bottom: 10px;
+        }
+
+
+        .form-check-input {
+            margin-right: 10px;
+        }
+
+
+        #gst-price-container, #gst-number-container {
+            display: none; /* Initially hidden, will show only when GST is checked */
+        }
+        /* Style for all form labels */
+        label {
             font-family: 'Playfair Display', serif;
-            margin-bottom: 20px;
-            color: #007a99;
-            text-align: center;
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
         }
-        .form-outline input {
-            border-radius: 10px;
-            border: 1px solid #b2e4ef;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 12px;
+
+
+        /* General style for all input fields, select boxes, textareas */
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="password"],
+        input[type="url"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+       
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffffff;
+            font-size: 14px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            width: 90%;
         }
-        .form-outline input:focus {
-            border-color: #03AED2;
+
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="password"],
+        input[type="url"],
+        select,
+        textarea {
+                border-color: #878787;
+                outline: none;
+                box-shadow: 0 0 8px rgba(237, 237, 237, 0.2);
+            }
+
+
+        /* Style for select dropdowns */
+        select {
+            height: 40px;
+            background-color: #fff;
+        }
+
+
+        /* Style for textarea to allow resizing vertically */
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+
+        /* Style for checkboxes and radio buttons */
+        input[type="checkbox"], input[type="radio"] {
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+
+
+
+
+
+        /* Style for form wrapper to center form and add padding */
+        form {
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+            background-color: #ffffff;
+        }
+
+
+        /* Style for error messages */
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+
+        /* Add focus state for input fields */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="password"]:focus,
+        input[type="url"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #a3a3a3;
             outline: none;
-            box-shadow: 0 0 8px rgba(3, 174, 210, 0.2);
+            box-shadow: 0 0 8px rgba(237, 237, 237, 0.2);
         }
+
+
+        /* Style for checkbox label */
+        .form-check-label {
+            margin-left: 5px;
+            font-size: 14px;
+        }
+
+
+        /* Disable resizing for input fields */
+        input[type="text"], input[type="email"], input[type="number"] {
+            resize: none;
+        }
+
+
         .btn-info {
             background-color: #03AED2;
             border: none;
@@ -68,14 +245,7 @@
         .btn-info:hover {
             background-color: #027994;
             box-shadow: 0 4px 15px rgba(3, 174, 210, 0.4);
-        }
-        .container {
-            margin-top: 30px;
-        }
-        .card-body {
-            padding: 40px;
-        }
-
+        } 
         @media (max-width: 768px) {
             .main-container{
                 margin-top: 30px;
@@ -91,197 +261,173 @@
                 margin-left: 300px; /* Adjust content when sidebar is open */
             }
 
-        }
+        }       
     </style>
 </head>
 <body>
     {% include 'sidebar.html' %}
 
+
     <div class="main-container">
         <div class="card shadow-2-strong card-registration">
             <div class="card-body">
-                <h3 style="font-size: 40px; margin-top: 5px;">Service Management</h3>
+                <h3 style="font-size: 45px; font-weight: 600; margin: 10px;">Service Management Record</h3>
                 {% for x in data %}
-                  <form method="POST">
+                <form method="POST" id="service-management-form">      
                     {% csrf_token %}
                     <div class="row">
-                      <div class="col-md-6 mb-4">
-                        <div data-mdb-input-init class="form-outline">
-                            <input type="text" id="pestcontrolservice" class="form-control form-control-lg" placeholder="Pest Control Service" name="upestcontrolservice" value="{{ x.pestcontrolservice }}" />
-                        </div>
-                      </div>
-                      <div class="col-md-6 mb-4">
-                        <div data-mdb-input-init class="form-outline">
-                            <input type="text" id="services" class="form-control form-control-lg" placeholder="Service Location" name="uservices" value="{{x.services}}" />
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="servicetype" class="form-control form-control-lg" placeholder="Service Type" name="uservicetype" value="{{ x.servicetype }}"/>
-                          </div>
-                        </div>
                         <div class="col-md-6 mb-4">
                             <div data-mdb-input-init class="form-outline">
-                                <select id="customer_id" class="form-control form-control-lg" name="customer_id">
-                                    <option value="" disabled selected>Select Customer</option>
-                                    {% for customer in customers %}
-                                    <option value="{{ customer.id }}" data-fullname="{{ customer.firstname }} {{ customer.lastname }}">{{ customer.customerid }} - {{ customer.firstname }} {{ customer.lastname }}</option>
-                                    {% endfor %}
-                                </select>
+                                <input type="text" id="ucustomer" class="form-control form-control-lg" placeholder="Customer Name" name="ucustomer" value="{{ x.customer }}" readonly/>
                             </div>
                           </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="service_frequency" class="form-control form-control-lg" placeholder="Service Frequency" name="uservice_frequency" value="{{ x.service_frequency }}"/>
-                          </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="number" step="0.01" id="service_charges" class="form-control form-control-lg" placeholder="Service Charges" name="uservice_charges" value="{{ x.service_charges }}"/>
-                          </div>
-                        </div>
+
+
+                    <!-- The selected services list -->
+                    <label for="selected_services">Selected Services:</label>
+                    {% for service in x.selected_services.all %}
+                        <p aria-readonly="true">{{ service.product_name }}{% if not forloop.last %}, {% endif %}</p>
+                    {% endfor %}
+
+
+                    <label for="utotal_price">Total Price (without GST):</label>
+                    <input type="number" step="0.01" id="utotal_price" class="form-control form-control-lg" placeholder="Total Amount" name="utotal_price" value="{{ x.total_price }}" readonly />
+
+                    <label for="ugst_number">GST Number:</label>
+                    <input type="text" id="ugst_number" class="form-control form-control-lg" placeholder="GST Number" name="ugst_number" value="{{ x.gst_number }}"/>
+                    
+                    <label for="utotal_price_with_gst">Total Price with GST:</label>
+                    <input type="number" step="0.01" id="utotal_price_with_gst" class="form-control form-control-lg" placeholder="Total Price with GST" name="utotal_price_with_gst" value="{{ x.total_price_with_gst }}" readonly />
+
+
+                    <label for="ucontract_type">Contract Type:</label>
+                    <input type="text" id="ucontract_type" class="form-control form-control-lg" placeholder="Contract Type" name="ucontract_type" value="{{ x.contract_type }}" />
+
+
+                    <label for="ucontract_status">Contract Status:</label>
+                    <input type="text" id="ucontract_status" class="form-control form-control-lg" placeholder="Contract Status" name="ucontract_status" value="{{ x.contract_status }}" />
+
+
+                    <label for="uproperty_type">Property Type:</label>
+                    <textarea name="uproperty_type">{{ x.property_type }}</textarea><br>
+
+
+                    <label for="uwarranty_period">Warranty Period:</label>
+                    <input type="text" name="uwarranty_period" value="{{ x.warranty_period }}"><br>
+
+
+                    <div class="col-md-6">
+                        <label for="ustate" class="form-label">State:</label>
+                        <input type="text" id="ustate" class="form-control form-control-lg" placeholder="State" name="ustate" value="{{ x.state }}" />
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="gst_checkbox" name="ugst_checkbox" 
-                                    value="{{ x.gst_checkbox }}">
-                                <label class="form-check-label" for="gst_checkbox">GST</label>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="total_charges" class="form-control form-control-lg" placeholder="Total Charges" name="total_charges" readonly/>
-                          </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div data-mdb-input-init class="form-outline">
-                                
-                                <input type="date" id="lead_date" class="form-control form-control-lg" name="ulead_date" placeholder="Lead Date (Date of Inquiry)" value="{{ x.lead_date }}">
-                                <label for="lead_date" style="font-size: 14px;">Lead Date (Date of Inquiry)</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div data-mdb-input-init class="form-outline">
-                                <input type="date" id="service_date" class="form-control form-control-lg" name="uservice_date" placeholder="Service Date (Date of Service)" value="{{ x.service_date }}">
-                                <label for="service_date" style="font-size: 14px;">Service Date (Date of Service)</label>
-                            </div>
-                        </div>
+
+
+                    <label for="ucity">City:</label><br>
+                    <input type="text" id="ucity" class="form-control form-control-lg" placeholder="City" name="ucity" value="{{ x.city }}" />
+
+
+                    <label for="upincode">Pincode:</label>
+                    <input type="text" id="upincode" class="form-control form-control-lg" placeholder="Pincode" name="upincode" value="{{ x.pincode }}" />
+
+
+                    <label for="uaddress">Address:</label>
+                    <textarea name="uaddress">{{ x.address }}</textarea><br>
+
+
+                    <label for="ugps_location">GPS Location:</label>
+                    <input type="url" id="ugps_location" class="form-control form-control-lg" placeholder="GPS Location" name="ugps_location" value="{{ x.ugps_location }}" />
+
+
+                    <label for="ufrequency_count">Frequency Count:</label>
+                    <input type="text" id="ufrequency_count" class="form-control form-control-lg" placeholder="Frequency" name="ufrequency_count" value="{{ x.frequency_count }}" />
+
+
+                    <label for="upayment_terms">Payment Terms:</label>
+                    <input type="text" name="upayment_terms" value="100% Advance payment OR Whatever mutually Decided" readonly><br>
+
+
+                    <label for="usales_person_name">Sales Person Name:</label>
+                    <input type="text" name="usales_person_name" value="{{ x.sales_person_name }}"><br>
+
+
+                    <label for="usales_person_contact_no">Sales Person Contact No:</label>
+                    <input type="text" name="usales_person_contact_no" value="{{ x.sales_person_contact_no }}"><br>
+
+                    <label for="udelivery_time">Delivery Time</label>
+                    <input type="time" class="form-control" id="udelivery_time" name="udelivery_time" value="{{ x.delivery_time }}" required>
+
+                    <label for="ulead_date">Lead Date:</label><br>
+                    <input type="date" name="ulead_date" value="{{ x.lead_date }}" required><br>
+                   
+                    <label for="uservice_date">Service Date:</label><br>
+                    <input type="date" name="uservice_date" value="{{ x.service_date }}" required><br>
+                    {% endfor %}
+                    <div class="mt-4 pt-2 text-center" style="font-family: 'Playfair Display', serif;color:antiquewhite; font-weight: 900;">
+                        <button class="btn btn-info btn-lg" type="submit">Submit</button>
                     </div>
                     
-                    <div class="row">
-                        <div class="col-md-12 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="payment_terms_checkbox" class="form-control form-control-lg" placeholder="Payment Terms" name="payment_terms_checkbox" readonly/>
-                          </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="sales_person_name" class="form-control form-control-lg" placeholder="Sales Person Name" name="usales_person_name" value="{{ x.sales_person_name }}"/>
-                          </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="sales_person_contact_no" class="form-control form-control-lg" placeholder="Sales Person Contact No." name="usales_person_contact_no" value="{{ x.sales_person_contact_no }}"/>
-                          </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="technician_operator_name" class="form-control form-control-lg" placeholder="Technician Operator Name" name="utechnician_operator_name" value="{{ x.technician_operator_name }}"/>
-                          </div>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-2 text-center" style="font-family: 'Playfair Display', serif;color:antiquewhite;">
-                        <input class="btn btn-info btn-lg" type="submit" name="submit" value="Submit" />
-                    </div>
-                  </form>
-                  {% endfor %}
+                </form>
             </div>
         </div>
     </div>
-    
 
-      <script>
+
+   
+     <!-- Change to your actual view -->
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+
+    <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const gstCheckbox = document.getElementById("gst_checkbox");
-            const serviceChargesInput = document.getElementById("service_charges");
-            const totalChargesInput = document.getElementById("total_charges");
-            const paymentTermsInput = document.getElementById("payment_terms_checkbox");
-    
-            function updatePaymentTerms() {
-                if (gstCheckbox.checked) {
-                    paymentTermsInput.value = "Payment Due in 15 days (including GST)";
-                } else {
-                    paymentTermsInput.value = "100% Advance Payment";
-                }
-            }
-    
-            function calculateTotalCharges() {
-                const serviceCharges = parseFloat(serviceChargesInput.value);
-                if (!isNaN(serviceCharges)) {
-                    if (gstCheckbox.checked) {
-                        const totalCharges = serviceCharges * 1.18;  // 18% GST
-                        totalChargesInput.value = totalCharges.toFixed(2);
-                    } else {
-                        totalChargesInput.value = serviceCharges.toFixed(2);
-                    }
-                }
-            }
-    
-            gstCheckbox.addEventListener("change", function() {
-                updatePaymentTerms();
-                calculateTotalCharges();
-            });
-    
-            serviceChargesInput.addEventListener("input", function() {
-                calculateTotalCharges();
-            });
-    
-            // Initial calculation on page load
-            updatePaymentTerms();
-            calculateTotalCharges();
-        });
-        document.addEventListener("DOMContentLoaded", function() {
-            const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
-            menuItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const submenu = this.querySelector('.submenu');
-                    const arrow = this.querySelector('.arrow-down');
-                    
-                    // Hide all other submenus
-                    menuItems.forEach(otherItem => {
-                        if (otherItem !== this) {
-                            const otherSubmenu = otherItem.querySelector('.submenu');
-                            const otherArrow = otherItem.querySelector('.arrow-down');
-                            if (otherSubmenu) {
-                                otherSubmenu.style.display = 'none';
-                                if (otherArrow.classList.contains('arrow-up')) {
-                                    otherArrow.classList.remove('arrow-up');
+                const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
+                menuItems.forEach(item => {
+                    item.addEventListener('click', function() {
+                        const submenu = this.querySelector('.submenu');
+                        const arrow = this.querySelector('.arrow-down');
+                       
+                        // Hide all other submenus
+                        menuItems.forEach(otherItem => {
+                            if (otherItem !== this) {
+                                const otherSubmenu = otherItem.querySelector('.submenu');
+                                const otherArrow = otherItem.querySelector('.arrow-down');
+                                if (otherSubmenu) {
+                                    otherSubmenu.style.display = 'none';
+                                    if (otherArrow.classList.contains('arrow-up')) {
+                                        otherArrow.classList.remove('arrow-up');
+                                    }
                                 }
                             }
+                        });
+
+
+                        // Toggle current submenu
+                        if (submenu) {
+                            submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
+                            arrow.classList.toggle('arrow-up');
                         }
                     });
-
-                    // Toggle current submenu
-                    if (submenu) {
-                        submenu.style.display = (submenu.style.display === 'block' ? 'none' : 'block');
-                        arrow.classList.toggle('arrow-up');
-                    }
                 });
             });
-        });
     </script>
+    <!-- <script>
+        function updateCustomerDetails() {
+            const customerSelect = document.getElementById("customer_id");
+            const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+    
+            const contact = selectedOption.getAttribute("data-contact");
+            const email = selectedOption.getAttribute("data-email");
+    
+            document.getElementById("customer_contact").value = contact || '';
+            document.getElementById("customer_email").value = email || '';
+        }
+    </script> -->
     
 </body>
 </html>
+

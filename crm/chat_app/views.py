@@ -25,7 +25,6 @@ def ask_question(request):
         }
         return JsonResponse({"data": response_data})
     else:
-        
         return HttpResponseRedirect(
             reverse("chat")
         )  # Redirect to chat page for GET requests

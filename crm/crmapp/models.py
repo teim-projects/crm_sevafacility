@@ -294,9 +294,7 @@ class TechnicianProfile(models.Model):
 
 
 class service_management(models.Model):
-    customer_name = models.CharField(max_length=100, default="Null")
-    customer_contact = models.BigIntegerField(null=True)
-    customer_email = models.EmailField(null=True)
+    customer = models.ForeignKey(customer_details, on_delete=models.CASCADE, null=True, blank=True)
     selected_services = models.ManyToManyField(Product, related_name="selected_services")
     gst_checkbox = models.BooleanField(default=False)
     gst_status = models.CharField(max_length=10, default='NON-GST')
@@ -317,6 +315,7 @@ class service_management(models.Model):
     payment_terms = models.CharField(max_length=200, default="100% Advance payment OR Whatever mutually Decided", editable=False)
     sales_person_name = models.CharField(max_length=100, null=True, blank=True)
     sales_person_contact_no = models.CharField(max_length=15, null=True, blank=True)
+    delivery_time = models.TimeField(default=timezone.now)
     lead_date = models.DateField(default=timezone.now)
     service_date = models.DateField(null=True, blank=True)
     technician = models.ForeignKey(TechnicianProfile, on_delete=models.CASCADE, default=None, null=True, blank=True)
@@ -324,15 +323,17 @@ class service_management(models.Model):
 
     def __str__(self):
         selected_services = ', '.join([str(service) for service in self.selected_services.all()])
-        return f'Service Management - {self.customer_name} ({selected_services})'
+        return f'Service Management - {self.customer} ({selected_services})'
 
 class WorkAllocation(models.Model):
     technician = models.ForeignKey(TechnicianProfile, on_delete=models.CASCADE)
-    customer_name = models.CharField(max_length=100)
-    customer_phone_number = models.CharField(max_length=15)
+    customer_fname = models.CharField(max_length=100,null=True, blank=True)
+    customer_lname = models.CharField(max_length=100,null=True, blank=True)
+    customer_contact = models.CharField(max_length=15) 
     customer_address = models.CharField(max_length=255)
+    gps_location = models.URLField(null=True, blank=True)
     work_description = models.TextField()
-    customer_payment_status = models.CharField(max_length=20, choices=[('Completed', 'Completed'), ('Pending', 'Pending')])
+    customer_payment_status = models.CharField(max_length=20, choices=[('Online', 'Online'), ('Cash', 'Cash'), ('Pending', 'Pending')])
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     allocated_datetime = models.DateTimeField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -346,23 +347,8 @@ class WorkAllocation(models.Model):
 
 
     def __str__(self):
-        return f"Work Allocation for {self.customer_name} ({self.status})"
+        return f"Work Allocation for {self.customer_fname} ({self.status})"
    
-
-# class TechWorkList(models.Model):
-#     technician = models.ForeignKey(User, on_delete=models.CASCADE)
-#     work = models.ForeignKey(WorkAllocation, on_delete=models.CASCADE)
-#     status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Completed', 'Completed')], default='Pending')
-#     photo_before_service = models.ImageField(upload_to='photos/before/', blank=True, null=True)
-#     photo_after_service = models.ImageField(upload_to='photos/after/', blank=True, null=True)
-#     customer_signature_photo = models.ImageField(upload_to='photos/signatures/', blank=True, null=True)
-#     payment_photo = models.ImageField(upload_to='photos/payments/', blank=True, null=True)
-#     completion_datetime = models.DateTimeField(default=timezone.now)
-
-
-#     def __str__(self):
-#         return f"Work {self.work.id} by {self.technician.username}"
-
 
 class UploadedFile(models.Model):
     file = models.FileField(upload_to='uploads/')
@@ -371,6 +357,7 @@ class UploadedFile(models.Model):
 class TechWorkList(models.Model):
     technician = models.ForeignKey(User, on_delete=models.CASCADE)
     work = models.ForeignKey(WorkAllocation, on_delete=models.CASCADE)
+    service = models.ForeignKey(service_management, on_delete=models.CASCADE, default=None, null=True, blank=True)
     status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Completed', 'Completed')], default='Pending')
     photos_before_service = models.ManyToManyField(UploadedFile, related_name='photos_before_service', blank=True)
     photos_after_service = models.ManyToManyField(UploadedFile, related_name='photos_after_service', blank=True)
@@ -378,5 +365,7 @@ class TechWorkList(models.Model):
     payment_photos = models.ManyToManyField(UploadedFile, related_name='payment_photos', blank=True)
     completion_datetime = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
+    def _str_(self):
         return f"Work {self.work.id} by {self.technician.username}"
+    
+

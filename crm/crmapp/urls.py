@@ -21,6 +21,7 @@ urlpatterns = [
     path('logout', views.user_logout),
     path('display_customer', views.display_customer),
     path('display_service_management', views.display_service_management),
+    path('display_allocation', views.display_allocation),
     path('display_quotation', views.display_quotation),
     path('display_invoice', views.display_invoice),
     # Payment gateway
@@ -55,7 +56,7 @@ urlpatterns = [
     path('not_authorized/', views.not_authorized, name='not_authorized'),
     path('technician_dashboard/', views.technician_dashboard, name='technician_dashboard'),
     path('create_superadmin/', views.create_superadmin, name='create_superadmin'),
-    path('allocate/', views.allocate_work, name='allocate_work'),
+    path('allocate/<int:service_id>/', views.allocate_work, name='allocate_work'),
     path('technician_work_list/', views.technician_work_list, name='technician_work_list'),
     path('handle_work/<int:allocation_id>/', views.handle_work_allocation, name='handle_work_allocation'),  
     path('work_allocation_success/', views.work_allocation_success, name='work_allocation_success'),
@@ -81,6 +82,9 @@ urlpatterns = [
     # path('user_login/', views.dashboard_view, name='dashboard'),
     path('user_login/', views.calendar_view, name='calendar_view'),
     path('go_towork/<int:work_id>/', views.go_towork, name='go_towork'),
+    path('work/<int:work_id>/view_pdf/', views.view_work_pdf, name='view_work_pdf'),
+    path('work/<int:work_id>/download_pdf/', views.download_work_pdf, name='download_work_pdf'),
+    path('work/<int:work_id>/share_whatsapp/', views.generate_pdf_link, name='share_work_pdf_whatsapp'),
 ]
 
 if settings.DEBUG:

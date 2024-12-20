@@ -352,40 +352,22 @@ from .models import service_management, customer_details
 
 
 def service_management_create(request):
+    customers = customer_details.objects.all()
     category_choices = Product.CATEGORY_CHOICES  # Pass category choices to the template
     print("category choice0", category_choices)
     products = Product.objects.all()  # Adjust filter as necessary
     print("product in all ", products)
-    technicians= TechnicianProfile.objects.all()
-    # technician = get_object_or_404(TechnicianProfile, id=technician_id)
-
-    
 
     if request.method == 'POST':
         try:
             # Parse and validate form data
-            customer_name = request.POST.get('customer_name')
-            customer_contact = request.POST.get('customer_contact')
+            customer_id = request.POST['customer_id']
+            customer = customer_details.objects.get(id=customer_id)
             address=request.POST.get('address', 'Null')
             lead_date = request.POST.get('lead_date')
             service_date = request.POST.get('service_date')
             lead_date = datetime.strptime(lead_date, '%Y-%m-%d').date() if lead_date else None
             service_date = datetime.strptime(service_date, '%Y-%m-%d').date() if service_date else None
-            technician_id =request.POST.get('technician')
-            # technician =None
-            # if technician_id:
-            #     technician = get_object_or_404(TechnicianProfile, id=technician_id)
-                # You can now perform actions related to technician allocation
-                # For example: Creating a Work Allocation instance, etc.
-
-
-
-            technician_id = request.POST.get('technician')  # Get the technician ID from the form
-            
-            # Retrieve the TechnicianProfile instance
-            technician = None
-            if technician_id:
-                technician = TechnicianProfile.objects.get(id=technician_id)  # Fetch TechnicianProfile instance
             
             # Extract and validate selected services
             selected_service_names = request.POST.get('selected_services_names', '').strip()
@@ -410,16 +392,20 @@ def service_management_create(request):
             # Determine if GST should be applied
             apply_gst = request.POST.get('apply_gst') == 'on'
             gst_number = request.POST.get('gst_number', '') if apply_gst else ''
+            if apply_gst :
+                gst_status = 'GST'
+            else :
+                gst_status = 'NON-GST'    
+            delivery_time = request.POST['delivery_time']
 
             # Create and save the service management instance
             instance = service_management(
 
-                customer_name=customer_name,
-                customer_contact=customer_contact,
+                customer=customer,
                 address = address,
-                customer_email=request.POST.get('customer_email'),
                 gst_checkbox=apply_gst,  # Store whether GST is applied
                 gst_number=gst_number,  # Save GST number only if provided
+                gst_status = gst_status,
                 total_price=total_price,
                 total_price_with_gst=total_with_gst,
                 contract_type=request.POST.get('contract_type', 'NOT SELECTED'),
@@ -435,14 +421,14 @@ def service_management_create(request):
                 payment_terms=request.POST.get('payment_terms', '100% Advance payment OR Whatever mutually Decided'),
                 sales_person_name=request.POST.get('sales_person_name'),
                 sales_person_contact_no=request.POST.get('sales_person_contact_no'),
+                delivery_time=delivery_time,
                 lead_date=lead_date,
                 service_date=service_date,
-                technician=technician
             )
 
             # Save the instance first before assigning many-to-many fields
             instance.save()
-            print("Instance saved:", instance.customer_name)
+            print("Instance saved:", instance.customer)
             # technician = TechnicianProfile.objects.all()
             # Fetch and assign selected products
             products = Product.objects.filter(product_name__in=selected_service_names_list)
@@ -454,43 +440,6 @@ def service_management_create(request):
             instance.save()
 
 
-            work_description = request.POST.get('work_description')
-            customer_payment_status = request.POST.get('customer_payment_status')
-            payment_amount = request.POST.get('payment_amount')
-
-
-            workallocation=WorkAllocation.objects.create(
-                technician = technician,
-                work_description = work_description,
-                customer_payment_status = customer_payment_status,
-                payment_amount = payment_amount,
-                customer_name = customer_name,
-                customer_phone_number = customer_contact,
-                customer_address = address,
-            )
-
-
-            workallocation.save()
-            
-            # workallocation=WorkAllocation.objects.create(
-            # technician=technician,
-            # customer_name=request.POST.get('customer_name'),
-            # customer_contact=request.POST.get('customer_contact'),
-            # address=request.POST.get('address'),
-            # work_description = request.POST.get('work_description'),
-            # payment_status = request.POST.get('customer_payment_status'),
-            # payment_amount= request.POST.get('payment_amount')
-            # )
-
-            # workallocation.save()
-            # if technician_id:
-            #     # WorkAllocation.objects.create(
-            #     #     technician=technician,
-            #     #     service_management=instance,  # Linking the work allocation to the service management instance
-            #     # )
-            #     instance.allocate_work(technician_id)
-            #     # print(f"Work allocated to {technicians.first_name} {technician.last_name}")
-
             return redirect('/index')  # Redirect after successful submission
 
         except Exception as e:
@@ -499,11 +448,11 @@ def service_management_create(request):
             return render(request, 'service_management.html', {
                 'error': str(e),
                 'category_choices': category_choices,
-                'productsv   cycxxc': products,
-                'technicians': technicians,
+                'products': products,
+                'customers' : customers,
             })
 
-    return render(request, 'service_management.html', {'category_choices': category_choices, 'products': products, 'technicians': technicians})
+    return render(request, 'service_management.html', {'category_choices': category_choices, 'products': products,'customers' : customers})
 
 def get_products_by_category(request):
     categories = request.GET.get('categories', '')
@@ -742,6 +691,13 @@ def display_service_management(request):
     context['data'] =m
     return render(request , 'display_service_management.html' , context)
 
+def display_allocation(request):
+    m=service_management.objects.all()
+
+    context={}
+    context['data'] =m
+    return render(request , 'display_allocation.html' , context)
+
 
 # Display Quotation
 
@@ -804,36 +760,88 @@ def display_lead_management(request):
 # Delete Customer Details
 
 def delete_customer(request , rid):
-    m=customer_details.objects.filter(id=rid)
+    
+    if request.method == "POST":
+        password = request.POST.get("password")
+        correct_password = "seva123"  # Replace with the actual password you want to use
 
-    m.delete()
+        if password == correct_password:
+            try:
+                m=customer_details.objects.filter(id=rid)
+                m.delete()
+                messages.success(request, "Record deleted successfully.")
+            except customer_details.DoesNotExist:
+                messages.error(request, "Record not found.")
+        else:
+            messages.error(request, "Invalid password. Deletion failed.")
 
     return redirect('/display_customer')
 
 # Delete Service Management
 
-def delete_service_management(request , rid):
-    m=service_management.objects.filter(id=rid)
+# def delete_service_management(request , rid):
+#     m=service_management.objects.filter(id=rid)
 
-    m.delete()
+#     m.delete()
 
-    return redirect('/display_service_management')
+#     return redirect('/display_allocation')
+
+# test 1
+from django.contrib import messages
+
+def delete_service_management(request, rid):
+    if request.method == "POST":
+        password = request.POST.get("password")
+        correct_password = "seva123"  # Replace with the actual password you want to use
+
+        if password == correct_password:
+            try:
+                m = service_management.objects.get(id=rid)
+                m.delete()
+                messages.success(request, "Record deleted successfully.")
+            except service_management.DoesNotExist:
+                messages.error(request, "Record not found.")
+        else:
+            messages.error(request, "Invalid password. Deletion failed.")
+
+    return redirect('/display_allocation')
+
 
 # Delete Quotation
 
 def delete_quotation(request , rid):
-    m=quotation.objects.filter(id=rid)
+    if request.method == "POST":
+        password = request.POST.get("password")
+        correct_password = "seva123"  # Replace with the actual password you want to use
 
-    m.delete()
+        if password == correct_password:
+            try:
+                m=quotation.objects.filter(id=rid)
+                m.delete()
+                messages.success(request, "Record deleted successfully.")
+            except quotation.DoesNotExist:
+                messages.error(request, "Record not found.")
+        else:
+            messages.error(request, "Invalid password. Deletion failed.")
 
     return redirect('/display_quotation')
 
 # Delete Invoice
 
 def delete_invoice(request , rid):
-    m=invoice.objects.filter(id=rid)
+    if request.method == "POST":
+        password = request.POST.get("password")
+        correct_password = "seva123"  # Replace with the actual password you want to use
 
-    m.delete()
+        if password == correct_password:
+            try:
+                m=invoice.objects.filter(id=rid)
+                m.delete()
+                messages.success(request, "Record deleted successfully.")
+            except invoice.DoesNotExist:
+                messages.error(request, "Record not found.")
+        else:
+            messages.error(request, "Invalid password. Deletion failed.")
 
     return redirect('/display_invoice')
 
@@ -851,9 +859,19 @@ def delete_invoice(request , rid):
 # Delete Lead Management
 
 def delete_lead_management(request , rid):
-    m=lead_management.objects.filter(id=rid)
+    if request.method == "POST":
+        password = request.POST.get("password")
+        correct_password = "seva123"  # Replace with the actual password you want to use
 
-    m.delete()
+        if password == correct_password:
+            try:
+                m=lead_management.objects.filter(id=rid)
+                m.delete()
+                messages.success(request, "Record deleted successfully.")
+            except lead_management.DoesNotExist:
+                messages.error(request, "Record not found.")
+        else:
+            messages.error(request, "Invalid password. Deletion failed.")
 
     return redirect('/display_lead_management')
 
@@ -909,6 +927,64 @@ def edit_customer(request , rid):
 
 # Edit Service Management
 
+# from datetime import datetime
+# def edit_service_management(request , rid):
+
+#     if request.method =='GET':
+
+#         m=service_management.objects.filter(id=rid)
+
+#         context={}
+#         context['data']=m
+    
+#         return render(request , 'edit_service_management.html' , context)  
+#     else:
+#         upestcontrolservice=request.POST['upestcontrolservice']
+#         uservices=request.POST['uservices']
+#         uservicetype=request.POST['uservicetype']
+#         uservice_frequency=request.POST['uservice_frequency']
+#         uservice_charges=request.POST['uservice_charges']
+
+#         if 'ugst_checkbox' in request.POST:
+#             ugst_checkbox = True
+#         else:
+#             ugst_checkbox = False
+
+#         upayment_terms_checkbox = request.POST.get('upayment_terms_checkbox')
+#         uservice_date_str=request.POST['uservice_date']
+#         ulead_date_str=request.POST['ulead_date']
+#         usales_person_name=request.POST['usales_person_name']
+#         usales_person_contact_no=request.POST['usales_person_contact_no']
+#         utechnician_operator_name=request.POST['utechnician_operator_name']
+
+#         try:
+#             uservice_date = datetime.strptime(uservice_date_str, '%Y-%m-%d').date()
+#         except ValueError:
+#             uservice_date = None
+        
+#         try:
+#             ulead_date = datetime.strptime(ulead_date_str, '%Y-%m-%d').date()
+#         except ValueError:
+#             ulead_date = None
+
+#         if ugst_checkbox:
+#             total_charges = float(uservice_charges) * 1.18  # Adding 18% GST
+#             upayment_terms_checkbox = "Payment Due in 15 days (including GST)"
+#         else:
+#             total_charges = float(uservice_charges)
+#             upayment_terms_checkbox = "100% Advance Payment"
+
+        
+        
+
+#         m=service_management.objects.filter(id=rid)
+
+#         m.update(pestcontrolservice=upestcontrolservice, services=uservices , servicetype=uservicetype, service_frequency=uservice_frequency , service_charges=uservice_charges , gst_checkbox = True if ugst_checkbox == 'on' else False , payment_terms_checkbox=upayment_terms_checkbox , service_date=uservice_date , lead_date=ulead_date , sales_person_name=usales_person_name , sales_person_contact_no=usales_person_contact_no , technician_operator_name=utechnician_operator_name , total_charges=total_charges)
+
+       
+#         return redirect( '/display_service_management')
+
+
 from datetime import datetime
 def edit_service_management(request , rid):
 
@@ -921,23 +997,28 @@ def edit_service_management(request , rid):
     
         return render(request , 'edit_service_management.html' , context)  
     else:
-        upestcontrolservice=request.POST['upestcontrolservice']
-        uservices=request.POST['uservices']
-        uservicetype=request.POST['uservicetype']
-        uservice_frequency=request.POST['uservice_frequency']
-        uservice_charges=request.POST['uservice_charges']
-
-        if 'ugst_checkbox' in request.POST:
-            ugst_checkbox = True
-        else:
-            ugst_checkbox = False
-
-        upayment_terms_checkbox = request.POST.get('upayment_terms_checkbox')
-        uservice_date_str=request.POST['uservice_date']
+        ucustomer_id = request.POST.get('ucustomer')
+        uaddress = request.POST.get('uaddress')
+        ugst_checkbox = 'ugst' in request.POST
+        ugst_number=request.POST.get('ugst_number')
+        ugst_status = request.POST.get('ugst_status') 
+        utotal_price=float(request.POST['utotal_price'])
+        utotal_price_with_gst=float(request.POST['utotal_price_with_gst'])
+        ucontract_type= request.POST.get('ucontract_type')
+        ucontract_status=request.POST.get('ucontract_status')
+        uproperty_type=request.POST.get('uproperty_type')
+        uwarranty_period=request.POST.get('uwarranty_period')
+        ustate=request.POST.get('ustate')
+        ucity=request.POST.get('ucity')
+        upincode=request.POST.get('upincode')
+        ugps_location=request.POST.get('ugps_location')
+        ufrequency_count=request.POST.get('ufrequency_count')
+        upayment_terms=request.POST.get('upayment_terms')
+        usales_person_name=request.POST.get('usales_person_name')
+        usales_person_contact_no=request.POST.get('usales_person_contact_no')
+        udelivery_time=request.POST.get('udelivery_time')
         ulead_date_str=request.POST['ulead_date']
-        usales_person_name=request.POST['usales_person_name']
-        usales_person_contact_no=request.POST['usales_person_contact_no']
-        utechnician_operator_name=request.POST['utechnician_operator_name']
+        uservice_date_str=request.POST['uservice_date']
 
         try:
             uservice_date = datetime.strptime(uservice_date_str, '%Y-%m-%d').date()
@@ -949,25 +1030,41 @@ def edit_service_management(request , rid):
         except ValueError:
             ulead_date = None
 
-        if ugst_checkbox:
-            total_charges = float(uservice_charges) * 1.18  # Adding 18% GST
-            upayment_terms_checkbox = "Payment Due in 15 days (including GST)"
-        else:
-            total_charges = float(uservice_charges)
-            upayment_terms_checkbox = "100% Advance Payment"
+        try:
+            customer = customer_details.objects.get(customerid=ucustomer_id)
+        except customer_details.DoesNotExist:
+            return HttpResponse("Customer not found")
 
-        
-        
 
         m=service_management.objects.filter(id=rid)
 
-        m.update(pestcontrolservice=upestcontrolservice, services=uservices , servicetype=uservicetype, service_frequency=uservice_frequency , service_charges=uservice_charges , gst_checkbox = True if ugst_checkbox == 'on' else False , payment_terms_checkbox=upayment_terms_checkbox , service_date=uservice_date , lead_date=ulead_date , sales_person_name=usales_person_name , sales_person_contact_no=usales_person_contact_no , technician_operator_name=utechnician_operator_name , total_charges=total_charges)
+        m.update(
+            customer=customer, 
+            address=uaddress , 
+            gst_checkbox=ugst_checkbox, 
+            gst_number=ugst_number , 
+            gst_status=ugst_status, 
+            total_price=utotal_price,
+            total_price_with_gst=utotal_price_with_gst,
+            contract_type=ucontract_type,
+            contract_status=ucontract_status,
+            property_type=uproperty_type,
+            warranty_period=uwarranty_period,
+            state=ustate,
+            city=ucity,
+            pincode=upincode,
+            gps_location=ugps_location,
+            frequency_count=ufrequency_count,
+            payment_terms=upayment_terms,
+            sales_person_name=usales_person_name,
+            sales_person_contact_no=usales_person_contact_no,
+            delivery_time=udelivery_time,
+            lead_date=ulead_date,
+            service_date=uservice_date,
+            )
 
        
-        return redirect( '/display_service_management')
-
-
-
+        return redirect( '/display_allocation')
 
 
 # Edit Quotation
@@ -1678,6 +1775,8 @@ def technician_dashboard(request):
     }
 
     works = WorkAllocation.objects.all()
+
+
     print('works: ',works)
     for work in works:
         if work.status == 'Pending':
@@ -1717,37 +1816,45 @@ def create_superadmin(request):
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from .models import TechnicianProfile, WorkAllocation
+from .models import TechnicianProfile, WorkAllocation, service_management
 @login_required
-def allocate_work(request):
-    if not request.user.is_staff:
-        return HttpResponse("Not authorized", status=403)
+def allocate_work(request,service_id):
+    # if not request.user.is_staff:
+    #     return HttpResponse("Not authorized", status=403)
+    service_object = get_object_or_404(service_management, id=service_id)
+    customer_fname = service_object.customer.firstname
+    customer_lname = service_object.customer.lastname
+    customer_contact = service_object.customer.primarycontact
+    payment_amount = service_object.total_price_with_gst
+    gps_location = service_object.gps_location
+    
 
     if request.method == 'POST':
         technician_id = request.POST.get('technician')
-        customer_name = request.POST.get('customer_name')
-        customer_phone_number = request.POST.get('customer_phone_number')
         customer_address = request.POST.get('customer_address')
         work_description = request.POST.get('work_description')
         customer_payment_status = request.POST.get('customer_payment_status')
-        payment_amount = request.POST.get('payment_amount')
-
         technician = get_object_or_404(TechnicianProfile, id=technician_id)
 
         WorkAllocation.objects.create(
             technician=technician,
-            customer_name=customer_name,
-            customer_phone_number=customer_phone_number,
+            customer_fname = customer_fname,
+            customer_lname = customer_lname,
+            customer_contact = customer_contact,
             customer_address=customer_address,
             work_description=work_description,
             customer_payment_status=customer_payment_status,
-            payment_amount=payment_amount
+            payment_amount=payment_amount,
+            gps_location=gps_location,
         )
+
+        service_object.technician = technician
+        service_object.save()
 
         return redirect('work_allocation_success')
 
     technicians = TechnicianProfile.objects.all()
-    return render(request, 'allocate_work.html', {'technicians': technicians})
+    return render(request, 'allocate_work.html', {'technicians': technicians, 'customer_fname':customer_fname, 'customer_lname':customer_lname, 'customer_contact':customer_contact, 'payment_amount':payment_amount, 'gps_location':gps_location})
 
 
 from django.core.paginator import Paginator
@@ -2008,41 +2115,6 @@ from django.contrib.auth.decorators import login_required
 
 import base64
 from django.core.files.base import ContentFile
-
-# @login_required
-# def complete_work(request, work_id):
-#     tech_work = get_object_or_404(TechWorkList, work_id=work_id, technician=request.user)
-    
-#     if request.method == 'POST':
-#         if request.FILES.get('photo_before_service'):
-#             tech_work.photo_before_service = request.FILES['photo_before_service']
-#         if request.FILES.get('photo_after_service'):
-#             tech_work.photo_after_service = request.FILES['photo_after_service']
-#         if request.FILES.get('payment_photo'):
-#             tech_work.payment_photo = request.FILES['payment_photo']
-
-#         # Handle digital signature
-#         signature_data = request.POST.get('signature_data')
-#         if signature_data:
-#             format, imgstr = signature_data.split(';base64,')  # Split metadata from base64
-#             ext = format.split('/')[-1]  # Extract image format
-#             signature_file = ContentFile(base64.b64decode(imgstr), name=f'signature.{ext}')
-#             tech_work.customer_signature_photo.save(f'signature_{tech_work.work.id}.{ext}', signature_file)
-
-#         # Update payment status if it's currently pending
-#         if tech_work.work.customer_payment_status == 'Pending' and request.POST.get('customer_payment_status'):
-#             tech_work.work.customer_payment_status = request.POST['customer_payment_status']
-
-#         # Update work and tech work status
-#         tech_work.status = 'Completed'
-#         tech_work.work.status = 'Completed'
-#         tech_work.work.save()
-#         tech_work.save()
-#         return redirect('completed_work_list')
-
-#     return render(request, 'complete_work.html', {'tech_work': tech_work})
-
-
 from django.utils.timezone import now
 from .models import TechWorkList, UploadedFile
 
@@ -2093,7 +2165,7 @@ def complete_work(request, work_id):
 
         # Update Payment Status
         payment_status = request.POST.get('customer_payment_status')
-        if payment_status in ['Pending', 'Completed']:
+        if payment_status in ['Pending', 'Online', 'Cash']:
             tech_work.work.customer_payment_status = payment_status
             tech_work.work.save()
 
@@ -2106,8 +2178,8 @@ def complete_work(request, work_id):
  
 
         return redirect('completed_work_list') 
+    
     return render(request, 'complete_work.html', {'tech_work': tech_work})
-
 
 
 @login_required
@@ -2123,12 +2195,12 @@ def work_details(request, work_id):
 
 
 
-# def view_work_details(request, work_id):
-#     tech_work = get_object_or_404(TechWorkList, pk=work_id)
-#     context = {
-#         'tech_work': tech_work
-#     }
-#     return render(request, 'work_details.html', context)
+def view_work_details(request, work_id):
+    tech_work = get_object_or_404(TechWorkList, pk=work_id)
+    context = {
+        'tech_work': tech_work
+    }
+    return render(request, 'work_details.html', context)
 
 # views.py
 
@@ -2318,3 +2390,53 @@ def work_list_view(request):
 
     print("work_allocation: ", work_allocations)
     return render(request, 'work_list.html', {'work_allocations': work_allocations})
+
+
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+from crmapp.models import TechWorkList
+
+def view_work_pdf(request, work_id):
+    work = get_object_or_404(TechWorkList, pk=work_id, technician=request.user)
+    context = {'work': work}
+    html = render_to_string('work_pdf_template.html', context)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="work_{work_id}.pdf"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Error generating the PDF', status=400)
+    
+    return response
+
+def download_work_pdf(request, work_id):
+    work = get_object_or_404(TechWorkList, pk=work_id, technician=request.user)
+    context = {'work': work}
+    html = render_to_string('work_pdf_template.html', context)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="work_{work_id}.pdf"'
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Error generating the PDF', status=400)
+    
+    return response
+
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+import urllib.parse
+
+def generate_pdf_link(request, work_id):
+    work = get_object_or_404(TechWorkList, id=work_id)
+    pdf_url = request.build_absolute_uri(reverse('download_work_pdf', args=[work_id]))
+    whatsapp_message = f"Here is your service report: {pdf_url}"
+    encoded_message = urllib.parse.quote(whatsapp_message)
+    whatsapp_url = f"https://wa.me/{work.work.customer_contact}?text={encoded_message}"
+    return redirect(whatsapp_url)
+

@@ -59,8 +59,8 @@ class WorkAllocationForm(forms.ModelForm):
     class Meta:
         model = WorkAllocation
         fields = [
-            'technician', 'customer_name', 'customer_phone_number',
-            'customer_address', 'work_description',
+            'technician', 'customer_fname', 'customer_lname', 'customer_contact',
+            'customer_address','gps_location', 'work_description',
             'customer_payment_status', 'payment_amount'
         ]
 

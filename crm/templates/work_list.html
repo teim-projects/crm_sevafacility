@@ -119,10 +119,11 @@
             <div class="card-header">
                 Work ID: {{ tech_work.work.id }} - Status: {{ tech_work.status }}
             </div>
-            <p><strong>Customer Name:</strong> {{ tech_work.work.customer_name }}</p>
-            <p><strong>Customer Phone Number:</strong> {{ tech_work.work.customer_phone_number }}</p>
+            <p><strong>Customer Name:</strong> {{ tech_work.work.customer_fname }} {{ tech_work.work.customer_lname }}</p>
+            <p><strong>Customer Phone Number:</strong> {{ tech_work.work.customer_contact }}</p>
             <p><strong>Customer Address:</strong> {{ tech_work.work.customer_address }}</p>
             <p><strong>Work Description:</strong> {{ tech_work.work.work_description }}</p>
+            <p><strong>Customer GPS Location:</strong><a href="{{ tech_work.work.gps_location }}" target="_blank">View Location</a></p>
             <p><strong>Payment Status:</strong> {{ tech_work.work.customer_payment_status }}</p>
             <p><strong>Payment Amount:</strong> {{ tech_work.work.payment_amount }}</p>
             <p><strong>Work Allocated On:</strong> {{ tech_work.work.allocated_datetime|date:"d-F-Y H:i" }}</p>

@@ -41,9 +41,6 @@
             /* height: 100vh; */
         }
 
-        .form-group .add-file-btn {
-            margin-left: 100px !important;
-        }
 
         h1 {
             color: #333;
@@ -67,6 +64,19 @@
         .form-control {
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+        .img-fluid {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin: 10px 0;
+            transition: transform 0.3s;
+        }
+
+        .img-fluid:hover {
+            transform: scale(1.05);
         }
 
         .btn-success {
@@ -132,7 +142,7 @@
         </button>
     </div>
     <div class="new-container">
-        <h1 class="my-4 text-center">Complete Work for {{ tech_work.work.customer_name }}</h1>
+        <h1 class="my-4 text-center">Complete Work for {{ tech_work.work.customer_fname }} {{ tech_work.work.customer_lname }}</h1>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
@@ -161,7 +171,7 @@
                 <input type="file" name="photos_before_service" id="photos_before_service" class="form-control hidden-input"
                     multiple>
                 <button type="button" class="btn btn-primary add-file-btn" id="add-photo-before"
-                    style="width: 30%; margin-top: 10px; margin-left: 35%;">
+                    style="width: 30%; margin-top: 10px;margin-left: 100px;">
                     <i class="fa fa-plus"></i> Add Files
                 </button>
                 <div class="file-list" id="file-list-before"></div>
@@ -172,7 +182,7 @@
                 <input type="file" name="photos_after_service" id="photos_after_service" class="form-control hidden-input"
                     multiple>
                 <button type="button" class="btn btn-primary add-file-btn" id="add-photo-after"
-                    style="width: 30%; margin-top: 10px; margin-left: 35%;">
+                    style="width: 30%; margin-top: 10px;margin-left: 110px;">
                     <i class="fa fa-plus"></i> Add Files
                 </button>
                 <div class="file-list" id="file-list-after"></div>
@@ -221,7 +231,7 @@
                 <label for="payment_photos">Payment Photo:</label>
                 <input type="file" name="payment_photos" id="payment_photos" class="form-control hidden-input" multiple>
                 <button type="button" class="btn btn-primary add-file-btn" id="add-photo-payment"
-                    style="width: 30%; margin-top: 10px; margin-left: 35%;">
+                    style="width: 30%; margin-top: 10px;margin-left: 140px;">
                     <i class="fa fa-plus"></i> Add Files
                 </button>
                 <div class="file-list" id="file-list-payment"></div>
@@ -229,14 +239,20 @@
             
 
             <div class="form-group">
-                <label for="customer_payment_status">Customer Payment Status:</label>
+                <label for="customer_payment_status">Customer Payment Mode:</label>
+                <br>
+                <img src="{% static 'images/payment_scanner.jpg' %}" alt="Google Payment Scanner" class="img-fluid">
                 {% if tech_work.work.customer_payment_status == 'Pending' %}
-                <select name="customer_payment_status" id="customer_payment_status" class="form-control hidden-input">
+                <select name="customer_payment_status" id="customer_payment_status" class="form-control">
+                    
+                    <option value="Online" {% if tech_work.work.customer_payment_status == 'Online' %} selected {% endif %}>Online</option>
+                    <option value="Cash" {% if tech_work.work.customer_payment_status == 'Cash' %} selected {% endif %}>Cash</option>
                     <option value="Pending" {% if tech_work.work.customer_payment_status == 'Pending' %} selected {% endif %}>Pending</option>
-                    <option value="Completed" {% if tech_work.work.customer_payment_status == 'Completed' %} selected {% endif %}>Completed</option>
                 </select>
-                {% else %}
-                <input type="text" id="customer_payment_status" class="form-control" value="Completed" readonly>
+                {% elif tech_work.work.customer_payment_status == 'Online' %}
+                <input type="text" id="customer_payment_status" class="form-control" value="Online" readonly>
+                {% elif tech_work.work.customer_payment_status == 'Cash' %}
+                <input type="text" id="customer_payment_status" class="form-control" value="Cash" readonly>
                 {% endif %}
             </div>
             
@@ -276,7 +292,7 @@
         //         for (const file of input.files) {
         //             const fileItem = document.createElement('div');
         //             fileItem.className = 'file-item';
-        //             fileItem.textContent = `File: ${file.name}`;
+        //             fileItem.textContent = File: ${file.name};
         //             fileList.appendChild(fileItem);
         //         }
         //         // Clear the input so more files can be added
@@ -308,7 +324,7 @@
     //         fileListElement.innerHTML = ''; // Clear previous list
     //         Array.from(dt.files).forEach(file => {
     //             const fileItem = document.createElement('div');
-    //             fileItem.textContent = `File: ${file.name}`;
+    //             fileItem.textContent = File: ${file.name};
     //             fileListElement.appendChild(fileItem);
     //         });
     //     }, { once: true }); 

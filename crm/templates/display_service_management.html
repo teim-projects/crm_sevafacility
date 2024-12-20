@@ -238,7 +238,7 @@
             <thead>
                 <tr>
                     <th>Sr No.</th>
-                    <th>Customer Name</th>
+                    <th>Customer Id</th>
                     <th>Contact</th>
                     <th>Email</th>
                     <th>Selected Services</th>
@@ -258,6 +258,7 @@
                     <th>Payment Terms</th>
                     <th>Sales Person Name</th>
                     <th>Sales Person Contact No.</th>
+                    <th>Delivery Time</th>
                     <th>Lead Date</th>
                     <th>Service Date</th>
                 </tr>
@@ -266,9 +267,9 @@
                 {% for x in data %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ x.customer_name }}</td>
-                    <td>{{ x.customer_contact }}</td>
-                    <td>{{ x.customer_email }}</td>
+                    <td>{{ x.customer }}</td>
+                    <td>{{ x.customer.primarycontact }}</td>
+                    <td>{{ x.customer.primaryemail }}</td>
                     <td>
                         {% for service in x.selected_services.all %}
                             {{ service.product_name }}{% if not forloop.last %}, {% endif %}
@@ -290,6 +291,7 @@
                     <td>{{ x.payment_terms }}</td>
                     <td>{{ x.sales_person_name }}</td>
                     <td>{{ x.sales_person_contact_no }}</td>
+                    <td>{{ x.delivery_time }}</td>
                     <td>{{ x.lead_date }}</td>
                     <td>{{ x.service_date }}</td>
                 </tr>

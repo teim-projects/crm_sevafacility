@@ -107,7 +107,7 @@
                 {% for work in completed_works %}
                 <tr>
                     <td>{{ work.id }}</td>
-                    <td>{{ work.work.customer_name }}</td>
+                    <td>{{ work.work.customer_fname }} {{ work.work.customer_lname }}</td>
                     <td>{{ work.completion_datetime|date:"d-F-Y / H:i" }}</td>
                     <td><a href="{% url 'work_details' work.id %}" class="btn btn-primary">View Work Details</a></td>
                 </tr>
