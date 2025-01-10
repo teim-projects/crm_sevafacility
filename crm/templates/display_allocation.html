@@ -88,6 +88,36 @@
             background-color: #cbcaca;
         }
 
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .pagination li {
+            margin: 10px 5px;
+        }
+        .pagination a, .pagination span {
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .pagination .current {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+
         /* Button Styling */
         .btn-like {
             display: inline-block;
@@ -200,6 +230,73 @@
         border-radius: 5px; /* Rounded button edges */
     }
 
+    .view-btn {
+            background-color: #303030;
+            color: rgb(246, 246, 246);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 20px;
+            border-color: #000000;
+        }
+        #modal {
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            right: -100%;
+            width: 40%;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 7px rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            transition: 0.3s;
+            overflow-y: auto;
+            padding: 20px;
+            
+        }
+
+        #modal.active {
+            right: 0;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: red;
+            font-size: 16px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+
+    /* Style for the dropdown content */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        /* box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); */
+        min-width: 100px;
+        z-index: 1;
+        border-radius: 30px;
+    }
+
+    .dropdown-content a {
+        color: rgb(0, 0, 0);
+        padding: 6px 10px;
+        text-decoration: none;
+        display: block;
+    }
+
+
+    /* Show dropdown on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
     /* Smooth fade-in animation */
     @keyframes fadeIn {
         from {
@@ -233,29 +330,40 @@
 
 <div class="table-wrapper">
     <h1> Technician Work Allocation</h1>
+    <div class="navbar">
+        <form class="form-inline" method="get">
+            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search by Cust.ID/Phone no." aria-label="Search" value="{{ request.GET.search }}">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </div>
     <div class="container-table">
-      
-      
-        <!-- <nav class="navbar navbar-light bg-light" style="margin-bottom: 20px; width: 100%; padding: 10px;"  id="searchInput">
-            <form class="form-inline" id="searchForm" action="/search" method="GET">
-                <input class="form-control mr-sm-2" type="search" id="searchInput" name="q" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="searchButton">Search</button>
-            </form>
-            
-          </nav>
-          <div id="searchResults"></div> -->
-        
-        
-          <table class="table table-bordered">
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Sr No.</th>
-                    <th>Customer Id</th>
+                    <th>
+                        <a style="text-decoration: none;color: #000000;" href="?sort_by=customerid&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Customer ID
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a style="text-decoration: none;color: #000000;" href="?sort_by=firstname&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Customer Name
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        </a>
+                    </th>
                     <th>Contact</th>
-                    <th>Email</th>
-                    <th>Selected Services</th>
                     <th>Total Price</th>
-                    <th>Total Price with GST</th>
+                    <th style="text-align: center;">Total Price<br>(GST)</th>
                     <th>GPS Location</th>
                     <th>Delivery Time</th>
                     <th>Service Date</th>
@@ -265,17 +373,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for x in data %}
+                {% for x in page_obj %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
+                    <td>{{ forloop.counter|add:start_index }}</td>
                     <td>{{ x.customer }}</td>
+                    <td>{{ x.customer.firstname }} {{ x.customer.lastname }}</td>
                     <td>{{ x.customer.primarycontact }}</td>
-                    <td>{{ x.customer.primaryemail }}</td>
-                    <td>
-                        {% for service in x.selected_services.all %}
-                            {{ service.product_name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    </td>
                     <td>{{ x.total_price }}</td>
                     <td>{{ x.total_price_with_gst }}</td>
                     <td><a href="{{ x.gps_location }}" target="_blank">View Location</a></td>
@@ -287,13 +390,27 @@
                         {% else %}
                             <a href="/allocate/{{ x.id }}/" class="btn btn-primary" role="button">Allocate Work</a>
                         {% endif %}
-                    </td>  <!-- Link to view the PDF -->
-                    <td><a href="/edit_service_management/{{ x.id }}" class="btn btn-success" role="button">Reschedule</a></td>
+                    </td>
+                    <td>
+                        <a href="/reschedule/{{ x.id }}/" class="btn btn-success" role="button">Reschedule</a>
+                    </td>
                     <td><a href="/delete_service_management/{{ x.id }}" class="btn btn-danger delete-link" role="button">Cancel</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="?page=1">&laquo; First</a></li>
+                <li><a href="?page={{ page_obj.previous_page_number }}">&lsaquo; Previous</a></li>
+            {% endif %}
+            <span class="current">{{ page_obj.number }}</span>
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">Next &rsaquo;</a></li>
+                <li><a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+            {% endif %}
+        </div>
     </div>
 </div>
 <!-- <div id="confirmationModal" class="modal">
@@ -320,6 +437,12 @@
             </div>
         </form>
     </div>
+</div>
+
+<div id="modal">
+    <button class="close-btn" onclick="closeModal()">X</button>
+    <h3 style="font-family: 'Playfair Display', serif;font-weight: 900;text-align: center;">Service Details</h3>
+    <div id="modal-content"></div>
 </div>
 <script>
    document.addEventListener("DOMContentLoaded", function() {
@@ -372,6 +495,20 @@
             confirmationModal.style.display = 'none';
         });
     });
+
+    function openModal(service_id) {
+        fetch(`/get_allocation_details/${service_id}/`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modal-content').innerHTML = html;
+                document.getElementById('modal').classList.add('active');
+            });
+
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.remove('active');
+    }
 
 </script>
 

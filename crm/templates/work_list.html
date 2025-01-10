@@ -9,42 +9,152 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <title>Technician Work List</title>
     <style>
-        .work-container{
-            margin-left: 300px;
-            margin-top: 30px;
 
-        }
-
-        h1{
-            font-family: 'Playfair Display', serif;
-        }
-
-        .work-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            background-color: #fff;
-        }
-        .work-card h2 {
-            margin-top: 0;
-            font-size: 20px;
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #dedede;
             color: #333;
+            margin: 0;
+            padding: 0;
         }
-        .work-card p {
-            margin: 10px 0;
-            color: #555;
+
+        /* Title Styling */
+        h1 {
+            color: #03AED2;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 500;
+            padding: 20px;
+            text-align: center;
         }
-        .work-card .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #ddd;
-            padding: 10px 15px;
-            border-radius: 8px 8px 0 0;
-            font-size: 18px;
+
+        /* Content Layout */
+        .table-wrapper {
+            margin-left: 285px; /* Offset for sidebar */
+            max-width: calc(100% - 250px); /* Account for sidebar */
+            padding: 20px;
+            /* border: 1px solid black ; */
+        }
+        .container-table {
+            overflow-x: auto; /* Horizontal scrollbar */
+            width: calc(100%); /* Adjust width to account for scrollbar */
+            margin: auto;
+            max-width: 100%;
+            padding: 0 20px; /* Add padding for spacing */
+            
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #7c7c7c;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+
+        th {
+            font-family: "Cardo", serif;
+            font-weight: 500;
+            font-size: 17px;
+            font-style: normal;
+            color: #ffffff;
             font-weight: bold;
         }
+
+        td {
+            font-family: "Outfit", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #cbcaca;
+        }
+
+        /* Button Styling */
+        .btn-like {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: #fff;
+            background-color: #343434;
+            border: none;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            margin-right: 5px;
+        }
+
+        .btn-like:hover {
+            background-color: #343434;
+        }
+
+        /* Search Bar Styling */
+        .navbar {
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-inline .form-control {
+            display: inline;
+            border: 1px solid #000000;
+            color: #000000;
+        }
+        
+        .form-inline .btn-outline-success {
+            margin-top: 10px;
+            color: #000000;
+            border: 1px solid #000000;
+        }
+
+        .form-inline .btn-outline-success:hover {
+            background-color: #707070;
+            color: #ffffff;
+        }
+        .edit-delete-buttons {
+            white-space: nowrap; /* Prevent wrapping for buttons */
+            text-align: center; /* Center align buttons */
+        }
+        .edit-delete-buttons a {
+            display: inline-block; /* Ensure inline block to prevent overflow */
+            width: auto; /* Set width to auto */
+            margin-right: 5px;
+        }
+
+        .btn-like {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-color: #28a745;
+        border: 1px solid transparent;
+        color: #fff;
+        border-radius: 0.25rem;
+        text-decoration: none; /* Remove underline */
+    }
+
+    .btn-like.delete-link {
+        background-color: #dc3545;
+    }
+
+    .btn-like:hover,
+    .btn-like.delete-link:hover {
+        background-color: #218838;
+    }
+
+        
         .btn-container {
             display: flex;
             justify-content: center;
@@ -52,15 +162,7 @@
         .btn-container form {
             margin: 10px;
         }
-        /* .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 200px;
-            background-color: #343a40;
-            padding-top: 20px;
-        } */
+        
         .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
@@ -83,6 +185,33 @@
             height: auto;
             display: block;
             margin: 0 auto; /* Center the logo horizontally */
+        }
+
+        /* Smooth fade-in animation */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+
+
+        /* On small screens, set margin to 0 when sidebar is hidden */
+        @media (max-width: 768px) {
+            .table-wrapper {
+                margin-left: 0;
+                margin-top: 10px;
+                max-width: 100%;
+                padding: 20px; /* Add some padding for better appearance */
+            }
+
+            .open-sidebar .table-wrapper {
+                margin-left: 300px; /* Adjust content when sidebar is open */
+            }
+
         }
 
         @media (max-width: 768px) {
@@ -112,36 +241,72 @@
             <a href="/logout" style="text-decoration: none; color: black; margin-left: 30px; margin-right: 30px"><i class="fa-sharp fa-solid fa-right-from-bracket fa-flip-horizontal" style="color: #fa0000;"></i> Logout</a>
         </button>
     </div>
-    <div class="work-container">
-        <h1 class="my-4 text-center">Technician Work List</h1>
-        {% for tech_work in work_allocations %}
-        <div class="work-card">
-            <div class="card-header">
-                Work ID: {{ tech_work.work.id }} - Status: {{ tech_work.status }}
-            </div>
-            <p><strong>Customer Name:</strong> {{ tech_work.work.customer_fname }} {{ tech_work.work.customer_lname }}</p>
-            <p><strong>Customer Phone Number:</strong> {{ tech_work.work.customer_contact }}</p>
-            <p><strong>Customer Address:</strong> {{ tech_work.work.customer_address }}</p>
-            <p><strong>Work Description:</strong> {{ tech_work.work.work_description }}</p>
-            <p><strong>Customer GPS Location:</strong><a href="{{ tech_work.work.gps_location }}" target="_blank">View Location</a></p>
-            <p><strong>Payment Status:</strong> {{ tech_work.work.customer_payment_status }}</p>
-            <p><strong>Payment Amount:</strong> {{ tech_work.work.payment_amount }}</p>
-            <p><strong>Work Allocated On:</strong> {{ tech_work.work.allocated_datetime|date:"d-F-Y H:i" }}</p>
 
 
-           
-            <div class="btn-container">
-                {% if  tech_work.status == 'Pending' %}
-                    <form action="{% url 'complete_work' tech_work.id %}" method="get">
-                        <button type="submit" class="btn btn-primary">Complete Work</button>
-                    </form>
-                {% endif %}
-            </div>
+    <div class="table-wrapper">
+        <h1>Technician Work List</h1>
+    
+        <div class="navbar">
+            <form class="form-inline" method="get">
+                <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search by Phone no." aria-label="Search" value="{{ request.GET.search }}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
         </div>
-        {% empty %}
-            <p class="text-center">No work allocated.</p>
-        {% endfor %}
-    </div>
+        <div class="container-table">
+   
+              <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Sr.No</th>
+                        <th style="text-align: center;">Work <br>ID</th>
+                        <th>Work Status</th>
+                        <th>Customer Name</th>
+                        <th>Contact no.</th>
+                        <th>Address</th>
+                        <th>Work Description</th>
+                        <th>GPS Location</th>
+                        <th>Pay Status</th>
+                        <th>Amount</th>
+                        <th style="text-align: center;">Allocation <br>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tech_work in work_allocations %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ tech_work.work.id }}</td>
+                        <td style="text-align: center;">
+                            {{ tech_work.status }}
+                            <div class="btn-container">
+                                {% if  tech_work.status == 'Pending' %}
+                                    <form action="{% url 'complete_work' tech_work.id %}" method="get">
+                                        <button style="width: 100px;font-size: 12px;" type="submit" class="btn btn-sm btn-primary">Complete Work</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>{{ tech_work.work.customer_fname }} {{ tech_work.work.customer_lname }}</td>
+                        <td>{{ tech_work.work.customer_contact }}</td>
+                        <td>{{ tech_work.work.customer_address }}</td>
+                        <td>{{ tech_work.work.work_description }}</td>
+                        <td><a href="{{ tech_work.work.gps_location }}" target="_blank">Location</a></td>
+                        <td>{{ tech_work.work.customer_payment_status }}</td>    
+                        <td>{{ tech_work.work.payment_amount }}</td> 
+                        <td>
+                            {{ tech_work.work.allocated_datetime|date:"d/m/y" }}<br>
+                            {{ tech_work.work.allocated_datetime|date:"H:i" }}
+                        
+                        </td>
+                               
+                    </tr>
+                    {% empty %}
+                    <p class="text-center">No work allocated.</p>
+                    {% endfor %}
+                </tbody>   
+            </table>   
+        </div>
+    </div>    
+
 </body>
 </html>
 

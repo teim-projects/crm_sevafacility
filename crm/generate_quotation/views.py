@@ -46,15 +46,18 @@ from xhtml2pdf import pisa  # Library to convert HTML to PDF
 from crmapp.models import quotation
 from io import BytesIO
 from PyPDF2 import PdfReader, PdfWriter
+from django.templatetags.static import static
 
 def generate_quotation_pdf(request, quotation_id, action='view'):
     try:
         # Fetch the quotation data from the database
         quotation_data = get_object_or_404(quotation, id=quotation_id)
+        logo_path = request.build_absolute_uri(static('images/logo.png'))
         
         # Context to pass to the template
         context = {
-            'quotation': quotation_data
+            'quotation': quotation_data,
+            'logo_path': logo_path
         }
 
         # Render the PDF using the template

@@ -83,3 +83,30 @@ class LeadImportForm(forms.Form):
 
 
 
+# from django import forms
+# from .models import followup
+
+# class FollowUpForm(forms.ModelForm):
+#     class Meta:
+#         model = followup
+#         fields = '__all__'
+
+#     def __init__(self, *args, **kwargs):
+#         stage = kwargs.pop('stage', 1)
+#         super().__init__(*args, **kwargs)
+#         # Enable only fields for the current stage
+#         if stage == 1:
+#             self.fields_to_show = ['havedonepestcontrolearlier', 'firstremark', 'secondfollowupdate']
+#         elif stage == 2:
+#             self.fields_to_show = ['secondremark', 'thirdfollowupdate']
+#         elif stage == 3:
+#             self.fields_to_show = ['thirdremark', 'fourthfollowupdate']
+#         elif stage == 4:
+#             self.fields_to_show = ['fourthremark']
+        
+#         for field in self.fields:
+#             if field not in self.fields_to_show:
+#                 self.fields[field].widget = forms.HiddenInput()
+
+
+

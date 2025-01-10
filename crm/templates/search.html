@@ -136,13 +136,31 @@
           </nav>
           <div id="searchResults"></div>
         
-          {% if results %}
+          {% if page_obj %}
          
         <table border="2" align="center">
             <tr>
                 <th>Sr.No</th>
                 <th>Customer ID</th>
-                <th>First Name</th>
+                <!-- <th>First Name</th> -->
+
+                <th>
+
+                    <!-- <a href="?sort={% if sort_order == 'asc' %}desc{% else %}asc{% endif %}">First Name -->
+                    <a href="?q={{ search_query }}&sort={% if sort_order == 'asc' %}-{% endif %}firstname">
+                        First Name
+                        {% if sort_field == 'firstname' %}
+                            {% if sort_order == 'asc' %}
+                                ↑
+                            {% else %}
+                                ↓
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                        
+                        
+                    
+                </th>
                 <th>Last Name</th>
                 <th>Primary Email</th>
                 <th>Secondary Email</th>
@@ -161,7 +179,7 @@
                 <!-- <th>Edit</th>
                 <th>Delete</th> -->
             </tr>
-            {% for customer in results %}
+            {% for customer in page_obj %}
             <tr>
                 <td>{{forloop.counter}}</td>
                 <td>{{ customer.customerid }}</td>
@@ -195,6 +213,22 @@
     {% else %}
         <p>No search results found.</p>
     {% endif %}
+
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <li><a href="?page=1">&laquo; First</a></li>
+            <li><a href="?page={{ page_obj.previous_page_number }}">&lsaquo; Previous</a></li>
+        {% endif %}
+        
+        <span class="current">{{ page_obj.number }}</span>
+        
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}">Next &rsaquo;</a></li>
+            <li><a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+        {% endif %}
+    </div>
+    
     </div>
 </div>
 

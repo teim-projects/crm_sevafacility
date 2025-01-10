@@ -31,7 +31,7 @@ urlpatterns = [
     # path('display_inventory', views.display_inventory),
     path('display_lead_management', views.display_lead_management, name='display_lead_management'),
     path('edit_customer/<rid>', views.edit_customer),
-    path('edit_service_management/<rid>', views.edit_service_management),
+    path('edit_service_management/<rid>', views.edit_service_management, name='edit_service_management'),
     path('edit_quotation/<rid>', views.edit_quotation),
     path('edit_invoice/<rid>', views.edit_invoice),
     # path('edit_inventory/<rid>', views.edit_inventory),
@@ -85,6 +85,19 @@ urlpatterns = [
     path('work/<int:work_id>/view_pdf/', views.view_work_pdf, name='view_work_pdf'),
     path('work/<int:work_id>/download_pdf/', views.download_work_pdf, name='download_work_pdf'),
     path('work/<int:work_id>/share_whatsapp/', views.generate_pdf_link, name='share_work_pdf_whatsapp'),
+    path('get_customer_details/<str:customer_id>/', views.get_customer_details, name='get_customer_details'), 
+    path('get_service_details/<service_id>/', views.get_service_details, name='get_service_details'),
+    path('get_quotation_details/<quotation_id>/', views.get_quotation_details, name='get_quotation_details'),
+    path('get_invoice_details/<invoice_id>/', views.get_invoice_details, name='get_invoice_details'),
+    path('get_lead_details/<lead_id>/', views.get_lead_details, name='get_lead_details'),
+    path('get_allocation_details/<service_id>/', views.get_allocation_details, name='get_allocation_details'),  
+    path('first_followup/<lead_id>/<int:next_stage>',views.firstfollowup_create, name='firstfollowup_create') ,
+    path('second_followup/<lead_id>/<int:next_stage>',views.secondfollowup_create, name='secondfollowup_create') ,
+    path('third_followup/<lead_id>/<int:next_stage>',views.thirdfollowup_create, name='thirdfollowup_create') ,
+    path('final_followup/<lead_id>/<int:next_stage>',views.finalfollowup_create, name='finalfollowup_create') ,
+    path('display_followup/',views.display_followup, name='display_followup') ,
+    path('reschedule/<int:service_id>/', views.reschedule_create, name='reschedule_create'),
+    path('display_reschedule/',views.display_reschedule, name='display_reschedule') ,
 ]
 
 if settings.DEBUG:

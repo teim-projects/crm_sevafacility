@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Optional custom styles -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Technician Dashboard</title>
     <style>
-        .profile-card {
+        .profile-card, .chartcontainer {
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -64,6 +65,20 @@
             margin: 0 auto; /* Center the logo horizontally */
         }
 
+        .buttoncontainer{
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .buttoncontainer span{
+            width: 33%;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .buttoncontainer button{
+            width: 30%;
+        }
         @media (max-width: 768px) {
             .content{
                 margin-top: 30px;
@@ -111,6 +126,54 @@
         {% else %}
         <p>No profile information available.</p>
         {% endif %}
+
+        <div class="chartcontainer">
+            <div class="buttoncontainer">
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="changeMonth('{{ previous_month.month }}', '{{ previous_month.year }}')">Previous Month</button>
+                <span>{{ selected_month }}/{{ selected_year }}</span>
+                <button class="btn btn-outline-primary my-2 my-sm-0" onclick="changeMonth('{{ next_month.month }}', '{{ next_month.year }}')">Next Month</button>
+            </div>
+            <canvas id="weeklyChart"></canvas>
+        </div>
+        
+        <script>
+            function changeMonth(month, year) {
+                // Update the URL with the new month and year
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('month', month);
+                currentUrl.searchParams.set('year', year);
+                window.location.href = currentUrl.href; // Redirect to the new URL
+            }
+        </script>
+        
+        
+
+        <script>
+            const chartData = JSON.parse('{{ chart_data_json|escapejs }}');
+    
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Completed Works',
+                        data: chartData.data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+
     </div>
 
 </body>

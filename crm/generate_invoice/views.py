@@ -5,15 +5,18 @@ from xhtml2pdf import pisa  # Library to convert HTML to PDF
 from crmapp.models import invoice
 from io import BytesIO
 from PyPDF2 import PdfReader, PdfWriter
+from django.templatetags.static import static
 
 def generate_invoice_pdf(request, invoice_id, action='view'):
     try:
         # Fetch the invoice data from the database
         invoice_data = get_object_or_404(invoice, id=invoice_id)
+        logo_path = request.build_absolute_uri(static('images/logo.png'))
         
         # Context to pass to the template
         context = {
-            'invoice': invoice_data
+            'invoice': invoice_data,
+            'logo_path': logo_path
         }
 
         # Render the PDF using the template

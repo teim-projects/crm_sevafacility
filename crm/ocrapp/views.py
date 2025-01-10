@@ -78,7 +78,7 @@ def scan_visiting_card(request):
                 messages.success(request, 'Visiting card uploaded and processed successfully!')
 
                 # Render the index.html template and pass the success message
-                return render(request, 'index.html', {'success_message': 'Visiting card uploaded and processed successfully!'})
+                return redirect('/index')
 
             else:
                 # If text extraction failed, send an error response

@@ -107,30 +107,33 @@
     <div class="main-container">
         <div class="card shadow-2-strong card-registration">
             <div class="card-body">
-                <h3 style="font-size: 40px; margin-top: 5px;font-weight: 600;">Lead Management</h3>
+                <h3 style="font-size: 40px; margin-top: 5px;font-weight: 600;">First Follow up form</h3>
                 <form method="POST">
                     {% csrf_token %}
                     <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <div data-mdb-input-init class="form-outline">
+                                <label  style="font-size: 14px;">Lead Type</label>
+                                <input type="text" name="leadstatus" id="leadstatus" value="{{ lead.typeoflead }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6 mb-4">
                             <div data-mdb-input-init class="form-outline">
-                                
-                                <select id="sourceoflead" class="form-control form-control-lg" name="sourceoflead" placeholder="Please Select" required>
-                                    <option value="" disabled selected>Source of Lead</option>
-                                    <option value="Google">Google</option>
-                                    <option value="Justdial">Justdial</option>
-                                    <option value="Indianmart">Indianmart</option>
-                                    <option value="Customer Reference">Customer Reference</option>
-                                    <option value="BNI">BNI</option>
-                                    <option value="Lineclub">Lineclub</option>
-                                    <option value="Employee Reference">Employee Reference</option>
-                                    <option value="Others">Others</option>
+                                <label  style="font-size: 14px;">Have Done Pest Control Earlier? </label>
+                                <select id="havedonepestcontrolearlier" class="form-control form-control-lg" name="havedonepestcontrolearlier" placeholder="Please Select">
+                                    <option value="" disabled selected>Please Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
                                 
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-6 mb-4">
                             <div data-mdb-input-init class="form-outline">
-                                <input type="text" id="salesperson" class="form-control form-control-lg" placeholder="Salesperson" name="salesperson" required />
+                                <label  style="font-size: 14px;">If yes, What is the name of the Agency? </label>
+                                <input type="text" id="agency" class="form-control form-control-lg" placeholder="Agency" name="agency"/>
                             </div>
                         </div>
                     </div>
@@ -138,19 +141,23 @@
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <div data-mdb-input-init class="form-outline">
-                                <input type="text" id="customername" class="form-control form-control-lg" placeholder="Customer Name" name="customername" />
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div data-mdb-input-init class="form-outline">
+                                <label  style="font-size: 14px;">Inspection onsite Done? </label>
+                                <select id="inspectiononsite" class="form-control form-control-lg" name="inspectiononsite" placeholder="Please Select">
+                                    <option value="" disabled selected>Please Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
                                 
-                                <select id="customersegment" class="form-control form-control-lg" name="customersegment" placeholder="Please Select" required>
-                                    <option value="" disabled selected>Customer Segment</option>
-                                    <option value="Resedential">Resedential</option>
-                                    <option value="Industrial">Industrial</option>
-                                    <option value="Commercial">Commercial</option>
-                                    <option value="Institutional">Institutional</option>
-                                    <option value="Irrelevant Lead">Irrelevant Lead</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div data-mdb-input-init class="form-outline">
+                                <label  style="font-size: 14px;">Level of Inspection </label>
+                                <select id="levelofinspection" class="form-control form-control-lg" name="levelofinspection" placeholder="Please Select">
+                                    <option value="" disabled selected>Please Select</option>
+                                    <option value="Low">Low</option>
+                                    <option value="Middle">Middle</option>
+                                    <option value="High">High</option>
                                 </select>
                             </div>
                         </div>
@@ -159,21 +166,19 @@
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <div data-mdb-input-init class="form-outline">
-                                <label  style="font-size: 14px;">Type of Lead </label>
-                                <select id="typeoflead" class="form-control form-control-lg" name="typeoflead">
-                                    <option value="" disabled selected>Type of Lead</option>
-                                    <option value="Hot">Hot</option>
-                                    <option value="Warm">Warm</option>
-                                    <option value="Cold">Cold</option>
-                                    <option value="NotInterested">Not Interested</option>
-                                    <option value="LossOfOrder">Loss Of Order</option>
+                                <label  style="font-size: 14px;">Quotation Given? </label>
+                                <select id="quotationgiven" class="form-control form-control-lg" name="quotationgiven" placeholder="Please Select">
+                                    <option value="" disabled selected>Please Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-6 mb-4">
                           <div data-mdb-input-init class="form-outline">
-                            <label  style="font-size: 14px;">Enquiry Date </label>
-                            <input type="date" id="enquirydate" class="form-control form-control-lg" name="enquirydate"  />
+                            <label  style="font-size: 14px;">Quotation Amount </label>
+                            <input type="text" class="form-control form-control-lg" placeholder="Quotation Amount" name="quotationamount" id="quotationamount" />
                           </div>
                       </div>
                     </div>
@@ -181,32 +186,24 @@
                     <div class="row">
                       <div class="col-md-6 mb-4">
                           <div data-mdb-input-init class="form-outline">
-                            <input type="text" id="contactedby" class="form-control form-control-lg" placeholder="Contacted By" name="contactedby" />
+                            <label  style="font-size: 14px;">Standard Introduction Mail Sent? </label>
+                                <select id="mailsent" class="form-control form-control-lg" name="mailsent" placeholder="Please Select">
+                                    <option value="" disabled selected>Please Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                
+                                </select>
                           </div>
                       </div>
                         <div class="col-md-6 mb-4">
                           <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="maincategory" class="form-control form-control-lg" placeholder="Main Category" name="maincategory" />
-                          </div>
-                      </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                            <input type="text" id="subcategory" class="form-control form-control-lg" placeholder="Sub Category" name="subcategory" />
-                          </div>
-                      </div>
-                      <div class="col-md-6 mb-4">
-                          <div data-mdb-input-init class="form-outline">
-                             <input type="text" 
-                                   id="primarycontact" 
-                                   class="form-control form-control-lg" 
-                                   placeholder="Contact No." 
-                                   name="primarycontact" 
-                                   pattern="\d{10}" 
-                                   title="Please enter a valid 10-digit phone number" 
-                                   required />
+                            <label  style="font-size: 14px;">Customer Meeting </label>
+                            <select id="customermeeting" class="form-control form-control-lg" name="customermeeting" placeholder="Please Select">
+                                <option value="" disabled selected>Please Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            
+                            </select>
                           </div>
                       </div>
                     </div>
@@ -214,49 +211,18 @@
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <div data-mdb-input-init class="form-outline">
-                                 <input type="text" 
-                                   id="secondarycontact" 
-                                   class="form-control form-control-lg" 
-                                   placeholder="Contact No." 
-                                   name="secondarycontact" 
-                                   pattern="\d{10}" 
-                                   title="Please enter a valid 10-digit phone number" 
-                                   required />
+                                <label  style="font-size: 14px;">First followup Remark</label>
+                                <textarea id="firstremark" class="form-control form-control-lg" placeholder="Follow-up Remark" name="firstremark"></textarea>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-4">
-                            <div data-mdb-input-init class="form-outline">
-                                <input type="email" id="customeremail" class="form-control form-control-lg" placeholder="Customer Email" name="customeremail" />
-                            </div>
-                        </div>
-                      </div>
-
-                    <div class="row">
                       <div class="col-md-6 mb-4">
                           <div data-mdb-input-init class="form-outline">
-                            <label  style="font-size: 14px;">First followup Date:</label>
-                            <input type="date" id="firstfollowupdate" class="form-control form-control-lg" name="firstfollowupdate"  />
+                            <label  style="font-size: 14px;">Second followup Date</label>
+                            <input type="date" id="secondfollowupdate" class="form-control form-control-lg" name="secondfollowupdate"  />
                           </div>
                       </div>
-                      <div class="col-md-6 mb-4">
-                        <div data-mdb-input-init class="form-outline">
-                            <textarea id="customeraddress" class="form-control form-control-lg" placeholder="Customer Address" name="customeraddress">{{ x.customeraddress }}</textarea>
-                        </div>
+                    
                     </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div data-mdb-input-init class="form-outline">
-                              <input type="url" id="location" class="form-control form-control-lg" placeholder="Location" name="location" />
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div data-mdb-input-init class="form-outline">
-                              <input type="text" id="city" class="form-control form-control-lg" placeholder="City" name="city" />
-                            </div>
-                        </div>
-                      </div>
 
                     <div class="mt-4 pt-2 text-center" style="font-family: 'Playfair Display', serif;color:antiquewhite;">
                       <input class="btn btn-info btn-lg" type="submit" name="submit" value="Submit" />

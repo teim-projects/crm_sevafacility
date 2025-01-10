@@ -114,6 +114,37 @@
             margin-bottom: 20px;
         }
 
+
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .pagination li {
+            margin: 10px 5px;
+        }
+        .pagination a, .pagination span {
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .pagination .current {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+
         .form-inline .form-control {
             border: 1px solid #000000;
             color: #000000;
@@ -201,6 +232,73 @@
         border-radius: 5px; /* Rounded button edges */
     }
 
+    .view-btn {
+            background-color: #303030;
+            color: rgb(246, 246, 246);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 20px;
+            border-color: #000000;
+        }
+        #modal {
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            right: -100%;
+            width: 40%;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 7px rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            transition: 0.3s;
+            overflow-y: auto;
+            padding: 20px;
+            
+        }
+
+        #modal.active {
+            right: 0;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: red;
+            font-size: 16px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+
+    /* Style for the dropdown content */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        /* box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); */
+        min-width: 100px;
+        z-index: 1;
+        border-radius: 30px;
+    }
+
+    .dropdown-content a {
+        color: rgb(0, 0, 0);
+        padding: 6px 10px;
+        text-decoration: none;
+        display: block;
+    }
+
+
+    /* Show dropdown on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
     /* Smooth fade-in animation */
     @keyframes fadeIn {
         from {
@@ -224,6 +322,10 @@
                 margin-left: 300px; /* Adjust content when sidebar is open */
             }
 
+            #modal {
+                width: 80%;
+            }
+
         }
     </style>
         
@@ -233,80 +335,90 @@
 
 <div class="table-wrapper">
     <h1> Quotation Information</h1>
-    <div class="container-table">
-        
-      
-        <!-- <nav class="navbar navbar-light bg-light" style="margin-bottom: 20px; width: 100%; padding: 10px;"  id="searchInput">
-            <form class="form-inline" id="searchForm" action="/search" method="GET">
-                <input class="form-control mr-sm-2" type="search" id="searchInput" name="q" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="searchButton">Search</button>
-            </form>
+
+    <div class="navbar">
+        <form class="form-inline" method="get">
+            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search by Cust.ID" aria-label="Search" value="{{ request.GET.search }}">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             
-          </nav>
-          <div id="searchResults"></div> -->
-        
-        
+        </form>
+    </div>
+
+    <div class="container-table">
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Sr.No</th>
-                    <th>Customer</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
+                    <th>
+                        <a style="text-decoration: none;color: #000000;" href="?sort_by=customerid&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Customer ID
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a style="text-decoration: none;color: #000000;" href="?sort_by=firstname&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Customer Name
+                            {% if current_order == 'asc' %}
+                                ▲
+                            {% else %}
+                                ▼
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>Company Details</th>
+                    <th>Quotation Date</th>
                     <th>Total Amount</th>
                     <th>Discount</th>
-                    <th>Company Name</th>
-                    <th>Company Email</th>
-                    <th>Company Contact No.</th>
-                    <th>Quotation Date</th>
-                    <th>Company Address</th>
-                    <th>Subject</th>
-                    <th>Terms and Conditions</th>
-                    <th>Service Type</th>
-                    <th>GST Checkbox</th>
-                    <th>Total Amount with GST</th>
-                    <th>Quotation Version</th>
-                    <th>Download PDF</th>
-                    <th>View PDF</th>
+                    <th style="text-align: center;">Total Amount<br>(GST)</th>
+                    <th style="text-align: center;">Quotation<br>Version</th>
+                    <th>Download</th>
+                    <th>View</th>
                     <th>Edit</th>
                     <th>Delete</th>
-                    
                 </tr>
             </thead>
             <tbody>
-                {% for x in data %}
+                {% for x in page_obj %}
                 <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ x.customer }}</td>
-                    <td>{{ x.quantity }}</td>
-                    <td>{{ x.price }}</td>
+                    <td>{{ forloop.counter|add:start_index }}</td>
+                    <td>{{ x.customer.customerid }}</td>
+                    <td>{{ x.customer.firstname }} {{ x.customer.lastname }}</td>
+                    <td style="text-align: center;">
+                        {{ x.company_name }}<br>
+                        {{ x.company_contact_no }}
+                    </td>
+                    <td>{{ x.quotation_date }}</td>
                     <td>{{ x.total_amount }}</td>
                     <td>{{ x.discount }}</td>
-                    <td>{{ x.company_name }}</td>
-                    <td>{{ x.company_email }}</td>
-                    <td>{{ x.company_contact_no }}</td>
-                    <td>{{ x.quotation_date }}</td>
-                    <td>{{ x.company_address }}</td>
-                    <td>{{ x.subject }}</td>
-                    <td>{{ x.termsandcondition }}</td>
-                    <td>{{ x.servicetype_q }}</td>
-                    <td>{{ x.gst_checkbox }}</td>
                     <td>{{ x.total_amount_with_gst }}</td>
                     <td>{{ x.version }}</td>
-                    <td><a href="generate_quotation/quotation/pdf/{{ x.id }}/{{ 'download' }}" class="btn btn-primary" role="button">Download PDF</a></td>  <!-- Link to download the PDF -->
-                    <td><a href="generate_quotation/quotation/pdf/{{ x.id }}/{{ 'view' }}" class="btn btn-secondary" role="button">View PDF</a></td>  <!-- Link to view the PDF -->
-                    
+                    <td><a href="generate_quotation/quotation/pdf/{{ x.id }}/{{ 'download' }}" class="btn btn-sm btn-primary" role="button">Download PDF</a></td>
+                    <td><a href="generate_quotation/quotation/pdf/{{ x.id }}/{{ 'view' }}" class="btn btn-sm btn-secondary" role="button">View PDF</a></td>
                     <td><a href="/edit_quotation/{{ x.id }}" class="btn btn-success" role="button">Edit</a></td>
                     <td><a href="/delete_quotation/{{ x.id }}" class="btn btn-danger delete-link" role="button">Delete</a></td>
-
-
-            
                 </tr>
                 {% endfor %}
             </tbody>
-                
         </table>
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="?page=1">&laquo; First</a></li>
+                <li><a href="?page={{ page_obj.previous_page_number }}">&lsaquo; Previous</a></li>
+            {% endif %}
+            
+            <span class="current">{{ page_obj.number }}</span>
+            
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">Next &rsaquo;</a></li>
+                <li><a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+            {% endif %}
+        </div>
     </div>
+    
 </div>
 <div id="confirmationModal" class="modal">
     <div class="modal-content">
@@ -324,6 +436,13 @@
         </form>
     </div>
 </div>
+
+<div id="modal">
+    <button class="close-btn" onclick="closeModal()">X</button>
+    <h3 style="font-family: 'Playfair Display', serif;font-weight: 900;text-align: center;">Quotation Details</h3>
+    <div id="modal-content"></div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
             const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
@@ -376,6 +495,20 @@ document.addEventListener("DOMContentLoaded", function() {
             confirmationModal.style.display = 'none';
         });
     });
+
+    function openModal(quotation_id) {
+        fetch(`/get_quotation_details/${quotation_id}/`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modal-content').innerHTML = html;
+                document.getElementById('modal').classList.add('active');
+            });
+
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.remove('active');
+    }
 
 
 </script>

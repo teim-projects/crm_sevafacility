@@ -222,7 +222,14 @@
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <div data-mdb-input-init class="form-outline">
-                                <input type="text" class="form-control form-control-lg" placeholder="Company Contact No" name="company_contact_no" />
+                                <input type="text" 
+                                       id="company_contact_no" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="Company Contact No." 
+                                       name="company_contact_no" 
+                                       pattern="\d{10}" 
+                                       title="Please enter a valid 10-digit phone number" 
+                                       required />
                             </div>
                         </div>
                         <div class="col-md-6 mb-4">

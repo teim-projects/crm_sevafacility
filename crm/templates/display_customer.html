@@ -116,6 +116,34 @@
             margin-bottom: 20px;
         }
 
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .pagination li {
+            margin: 10px 5px;
+        }
+        .pagination a, .pagination span {
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .pagination .current {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
         .form-inline .form-control {
             border: 1px solid #000000;
             color: #000000;
@@ -205,6 +233,73 @@
         border-radius: 5px; /* Rounded button edges */
     }
 
+        .view-btn {
+            background-color: #303030;
+            color: rgb(246, 246, 246);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 20px;
+            border-color: #000000;
+        }
+        #modal {
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            right: -100%;
+            width: 40%;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 7px rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            transition: 0.3s;
+            overflow-y: auto;
+            padding: 20px;
+            
+        }
+
+        #modal.active {
+            right: 0;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: red;
+            font-size: 16px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+
+    /* Style for the dropdown content */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        /* box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); */
+        min-width: 50px;
+        z-index: 1;
+        border-radius: 30px;
+    }
+
+    .dropdown-content a {
+        color: rgb(0, 0, 0);
+        padding: 6px 10px;
+        text-decoration: none;
+        display: block;
+    }
+
+
+    /* Show dropdown on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
     /* Smooth fade-in animation */
     @keyframes fadeIn {
         from {
@@ -229,6 +324,10 @@
                 margin-left: 300px; /* Adjust content when sidebar is open */
             }
 
+            #modal {
+                width: 80%;
+            }
+
         }
 
     </style>
@@ -238,72 +337,104 @@
 
     <div class="table-wrapper">
         <h1>Customer Details</h1>
-        <nav class="navbar navbar-light bg-light" id="searchInput">
+        <!-- <nav class="navbar navbar-light bg-light" id="searchInput">
             <form class="form-inline" id="searchForm" action="/search" method="GET">
                 <input class="form-control mr-sm-2" type="search" id="searchInput" name="q" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" id="searchButton">Search</button>
             </form>
-        </nav>
+        </nav> -->
+        <div class="navbar">
+            <form class="form-inline" method="get">
+                <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search by Cust.ID/Phone no." aria-label="Search" value="{{ request.GET.search }}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
         <div class="container-table">
-            
-            
-            <div id="searchResults"></div>
-            
             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Sr.No</th>
-                        <th>Customer ID</th>
-                        <th>First Name</th>
+                        <th>
+                            <a style="text-decoration: none;color: #000000;" href="?sort_by=customerid&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                Customer ID
+                                {% if current_order == 'asc' %}
+                                    ▲
+                                {% else %}
+                                    ▼
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a style="text-decoration: none;color: #000000;" href="?sort_by=firstname&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                                First Name
+                                {% if current_order == 'asc' %}
+                                    ▲
+                                {% else %}
+                                    ▼
+                                {% endif %}
+                            </a>
+                        </th>
                         <th>Last Name</th>
-                        <th>Primary Email</th>
-                        <th>Secondary Email</th>
-                        <th>Primary Contact No.</th>
-                        <th>Secondary Contact No.</th>
-                        <th>Contact Person Name</th>
-                        <th>Customer Segment</th>
-                        <th>Shift to Party Address</th>
-                        <th>Shift to Party City</th>
-                        <th>Shift to Party State</th>
-                        <th>Shift to Party Postal/ Zip Code</th>
-                        <th>Sold to Party Address</th>
-                        <th>Sold to Party City</th>
-                        <th>Sold to Party State</th>
-                        <th>Sold to Party Postal/ Zip Code</th>
+                        <th>Email</th>
+                        <th>Contact No.</th>
                         <th>Edit</th>
                         <th>Delete</th>
                         <th>Quotation History</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for x in data %}
+                    {% for x in page_obj %}
                     <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ x.customerid }}</td>
+                        <td>{{ forloop.counter|add:start_index }}</td>
+                        <td>
+                            {{ x.customerid }}
+                            <div class="dropdown">
+                                <button class="view-btn" onclick="openModal('{{ x.customerid }}')"><i class="fas fa-magnifying-glass-plus"></i></button>
+                                <div class="dropdown-content">
+                                    <a href="#">View More</a>
+                                </div>
+                            </div>
+                        </td>
                         <td>{{ x.firstname }}</td>
                         <td>{{ x.lastname }}</td>
                         <td>{{ x.primaryemail }}</td>
-                        <td>{{ x.secondaryemail }}</td>
                         <td>{{ x.primarycontact }}</td>
-                        <td>{{ x.secondarycontact }}</td>
-                        <td>{{ x.contactperson }}</td>
-                        <td>{{ x.customersegment }}</td>
-                        <td>{{ x.shifttopartyaddress }}</td>
-                        <td>{{ x.shifttopartycity }}</td>
-                        <td>{{ x.shifttopartystate }}</td>
-                        <td>{{ x.shifttopartypostal }}</td>
-                        <td>{{ x.soldtopartyaddress }}</td>
-                        <td>{{ x.soldtopartycity }}</td>
-                        <td>{{ x.soldtopartystate }}</td>
-                        <td>{{ x.soldtopartypostal }}</td>
                         <td><a href="/edit_customer/{{ x.id }}" class="btn btn-success" role="button">Edit</a></td>
                         <td><a href="/delete_customer/{{ x.id }}" class="btn btn-danger delete-link" role="button">Delete</a></td>
-
                         <td><a href="/quotation_history/{{ x.id }}/" class="btn btn-primary" role="button">Quotation History</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <li><a href="?page=1">&laquo; First</a></li>
+                    <li><a href="?page={{ page_obj.previous_page_number }}">&lsaquo; Previous</a></li>
+                {% endif %}
+                
+                <span class="current">{{ page_obj.number }}</span>
+                
+                {% if page_obj.has_next %}
+                    <li><a href="?page={{ page_obj.next_page_number }}">Next &rsaquo;</a></li>
+                    <li><a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+                {% endif %}
+            </div>
+            
+
+            <!-- <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <li><a href="?q={{ search_query }}&sort={{ sort_order }}&page=1">&laquo; First</a></li>
+                    <li><a href="?q={{ search_query }}&sort={{ sort_order }}&page={{ page_obj.previous_page_number }}">&lsaquo; Previous</a></li>
+                {% endif %}
+            
+                <span class="current">{{ page_obj.number }}</span>
+            
+                {% if page_obj.has_next %}
+                    <li><a href="?q={{ search_query }}&sort={{ sort_order }}&page={{ page_obj.next_page_number }}">Next &rsaquo;</a></li>
+                    <li><a href="?q={{ search_query }}&sort={{ sort_order }}&page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+                {% endif %}
+            </div> -->
+            
         </div>
     </div>
 
@@ -323,6 +454,12 @@
                 </div>
             </form>
         </div>
+    </div>
+
+    <div id="modal">
+        <button class="close-btn" onclick="closeModal()">X</button>
+        <h3 style="font-family: 'Playfair Display', serif;font-weight: 900;text-align: center;">Customer Details</h3>
+        <div id="modal-content"></div>
     </div>
 
 <script>
@@ -377,7 +514,19 @@
         });
     });
 
-    
+        function openModal(customer_id) {
+            fetch(`/get_customer_details/${customer_id}/`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('modal-content').innerHTML = html;
+                    document.getElementById('modal').classList.add('active');
+                });
+  
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
     </script>
 
 </body>

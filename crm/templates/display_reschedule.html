@@ -322,24 +322,18 @@
 
 
 <div class="table-wrapper">
-    <h1> Service Management Information</h1>
+    <h1> Reschedule Log</h1>
     <div class="navbar">
-        <form class="form-inline" method="get">
-            <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search by Cust.ID/Phone no." aria-label="Search" value="{{ request.GET.search }}">
+        <form class="form-inline" method="get" action="">
+            <input 
+                class="form-control mr-sm-2" 
+                type="search" 
+                name="search" 
+                placeholder="Search by Customer ID or Service ID" 
+                aria-label="Search" 
+                value="{{ search_query }}">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            
         </form>
-        <div class="filter-container">
-            <form method="get" action="">
-                <label for="contract_type">Filter by Contract Type:</label>
-                <select name="contract_type" id="contract_type" onchange="this.form.submit()">
-                    <option value="">All</option>
-                    <option value="AMC" {% if contract_type == 'AMC' %}selected{% endif %}>AMC</option>
-                    <option value="One Time" {% if contract_type == 'One Time' %}selected{% endif %}>One Time</option>
-                    <option value="Warranty" {% if contract_type == 'Warranty' %}selected{% endif %}>Warranty</option>
-                </select>
-            </form>
-        </div>
     </div>
     <div class="container-table">
         <table class="table table-bordered">
@@ -357,8 +351,8 @@
                         </a>
                     </th>
                     <th>
-                        <a style="text-decoration: none;color: #000000;" href="?sort_by=firstname&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
-                            Customer Name
+                        <a style="text-decoration: none;color: #000000;" href="?sort_by=service_id&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Service ID
                             {% if current_order == 'asc' %}
                                 ▲
                             {% else %}
@@ -366,42 +360,24 @@
                             {% endif %}
                         </a>
                     </th>
-                    <th>Contact</th>
-                    <th>Email</th>
-                    <th>Total Price</th>
-                    <th style="text-align: center;">Total Price<br>(GST)</th>
-                    <th style="text-align: center;">Sales Person<br> Details</th>
-                    <th style="text-align: center;">Delivery<br> Time</th>
-                    <th>Lead Date</th>
-                    <th>Service Date</th>
+                    <th>Old Service Date</th>
+                    <th>Old Delivery Time</th>
+                    <th>Reason</th>
+                    <th>New Service Date</th>
+                    <th>New Delivery Time</th>
                 </tr>
             </thead>
             <tbody>
                 {% for x in page_obj %}
                 <tr>
                     <td>{{ forloop.counter|add:start_index }}</td>
-                    <td>
-                        {{ x.customer }}
-                        <div class="dropdown">
-                            <button class="view-btn" onclick="openModal('{{ x.id }}')"><i class="fas fa-magnifying-glass-plus"></i></button>
-                            <div class="dropdown-content">
-                                <a href="#">View More</a>
-                            </div>
-                        </div>
-                    </td>
-                    <td>{{ x.customer.firstname }} {{ x.customer.lastname }}</td>
-                    <td>{{ x.customer.primarycontact }}</td>
-                    <td>{{ x.customer.primaryemail }}</td>
-                    <td>{{ x.total_price }}</td>
-                    <td>{{ x.total_price_with_gst }}</td>
-                    <td style="text-align: center;">
-                        {{ x.sales_person_name }}
-                        <br>
-                        {{ x.sales_person_contact_no }}
-                    </td>
-                    <td>{{ x.delivery_time }}</td>
-                    <td>{{ x.lead_date }}</td>
-                    <td>{{ x.service_date }}</td>
+                    <td>{{ x.service.customer }}</td>
+                    <td>{{ x.service.id }}</td>
+                    <td>{{ x.old_service_date }}</td>
+                    <td>{{ x.old_delivery_time }}</td>
+                    <td>{{ x.reason }}</td>
+                    <td>{{ x.service.service_date }}</td>
+                    <td>{{ x.service.delivery_time }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -432,11 +408,6 @@
     </div>
 </div>
 
-<div id="modal">
-    <button class="close-btn" onclick="closeModal()">X</button>
-    <h3 style="font-family: 'Playfair Display', serif;font-weight: 900;text-align: center;">Service Management Details</h3>
-    <div id="modal-content"></div>
-</div>
 <script>
    document.addEventListener("DOMContentLoaded", function() {
             const menuItems = document.querySelectorAll('.sidebar ul li.has-submenu');
@@ -496,20 +467,6 @@
                 confirmationModal.style.display = 'none';
             }
         });
-
-        function openModal(service_id) {
-            fetch(`/get_service_details/${service_id}/`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('modal-content').innerHTML = html;
-                    document.getElementById('modal').classList.add('active');
-                });
-  
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
 </script>
 
 </body>

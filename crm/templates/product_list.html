@@ -169,10 +169,10 @@
         <h1>Product List</h1>
         <div class="filter-container">
             <label for="category-select">Filter by Category:</label>
-            <select id="category-select">
-                <option value="all">All Categories</option>
+            <select id="category-select" onchange="filterByCategory()">
+                <option value="all" {% if selected_category == 'all' %}selected{% endif %}>All Categories</option>
                 {% for category in categories %}
-                <option value="{{ category }}">{{ category }}</option>
+                    <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -188,14 +188,14 @@
             </thead>
             <tbody>
                 {% for product in products %}
-                    <tr class="product-row" data-category="{{ product.category }}">
+                    <tr>
                         <td>{{ product.category }}</td>
                         <td>{{ product.product_id }}</td>
                         <td>{{ product.product_name }}</td>
                         <!-- <td>{{ product.price }}</td> -->
                         <!-- <td class="{% if product.quantity == 0 %}no-quantity{% endif %}">{{ product.quantity }}</td> -->
                         <td>
-                            <form action="{% url 'delete_product' product.product_id %}" method="POST" style="display:inline;">
+                            <form action="{% url 'delete_product' product.product_id %}" method="POST">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
@@ -210,6 +210,12 @@
             <button id="next-btn">Next</button>
         </div>
         
+		 <script>
+	        function filterByCategory() {
+	            const selectedCategory = document.getElementById('category-select').value;
+	            window.location.href = `/products/?category=${encodeURIComponent(selectedCategory)}`;
+	        }
+	    </script>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {

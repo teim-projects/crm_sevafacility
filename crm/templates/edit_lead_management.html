@@ -106,83 +106,144 @@
     <div class="card shadow-2-strong card-registration">
         <div class="card-body">
             <h3 style="font-size: 40px; margin-top: 5px;">Lead Management</h3>
+            {% for x in data %}
             <form method="post">
               {% csrf_token %}
               <div class="row">
                 <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Source Of Lead" name="usourceoflead" value="{{ data.sourceoflead }}" />
-                  </div>
+                    <div data-mdb-input-init class="form-outline">
+                        
+                        <select id="usourceoflead" class="form-control form-control-lg" name="usourceoflead" placeholder="Please Select" value="{{ x.sourceoflead }}" required>
+                            <option value="" disabled selected>Source of Lead</option>
+                            <option value="Google">Google</option>
+                            <option value="Justdial">Justdial</option>
+                            <option value="Indianmart">Indianmart</option>
+                            <option value="Customer Reference">Customer Reference</option>
+                            <option value="BNI">BNI</option>
+                            <option value="Lineclub">Lineclub</option>
+                            <option value="Employee Reference">Employee Reference</option>
+                            <option value="Others">Others</option>
+                        
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div data-mdb-input-init class="form-outline">
+                        <input type="text" id="usalesperson" class="form-control form-control-lg" placeholder="Salesperson" name="usalesperson" value="{{ x.salesperson }}" required />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div data-mdb-input-init class="form-outline">
+                        <input type="text" id="ucustomername" class="form-control form-control-lg" placeholder="Customer Name" name="ucustomername" value="{{ x.customername }}"/>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div data-mdb-input-init class="form-outline">
+                        
+                        <select id="ucustomersegment" class="form-control form-control-lg" name="ucustomersegment" placeholder="Please Select" value="{{ x.customersegment }}" required>
+                            <option value="" disabled selected>Customer Segment</option>
+                            <option value="Resedential">Resedential</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Commercial">Commercial</option>
+                            <option value="Institutional">Instiututional</option>
+                            <option value="Irrelevant Lead">Irrelevant Lead</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div data-mdb-input-init class="form-outline">
+                        <label  style="font-size: 14px;">Type of Lead </label>
+                        <select id="utypeoflead" class="form-control form-control-lg" name="utypeoflead" value="{{ x.typeoflead }}">
+                            <option value="" disabled selected>Type of Lead</option>
+                            <option value="Hot">Hot</option>
+                            <option value="Warm">Warm</option>
+                            <option value="Cold">Cold</option>
+                            <option value="NotInterested">Not Interested</option>
+                            <option value="LossOfOrder">Loss Of Order</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="col-md-6 mb-4">
                   <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Sales Person Name" name="usalesperson" value="{{ data.salesperson }}" />
+                    <label  style="font-size: 14px;">Enquiry Date </label>
+                    <input type="date" id="uenquirydate" class="form-control form-control-lg" name="uenquirydate"  value="{{ x.enquirydate }}"/>
                   </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-4">
+                  <div data-mdb-input-init class="form-outline">
+                    <input type="text" id="ucontactedby" class="form-control form-control-lg" placeholder="Contacted By" name="ucontactedby" value="{{ x.contactedby }}"/>
+                  </div>
+              </div>
+                <div class="col-md-6 mb-4">
+                  <div data-mdb-input-init class="form-outline">
+                      <input type="text" id="umaincategory" class="form-control form-control-lg" placeholder="Main Category" name="umaincategory" value="{{ x.maincategory }}"/>
+                  </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-4">
+                  <div data-mdb-input-init class="form-outline">
+                    <input type="text" id="usubcategory" class="form-control form-control-lg" placeholder="Sub Category" name="usubcategory" value="{{ x.subcategory }}"/>
+                  </div>
+              </div>
+              <div class="col-md-6 mb-4">
+                  <div data-mdb-input-init class="form-outline">
+                    <input type="text" id="uprimarycontact" class="form-control form-control-lg" placeholder="Primary Contact No." name="uprimarycontact" value="{{ x.primarycontact }}"/>
+                  </div>
+              </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div data-mdb-input-init class="form-outline">
+                        <input type="text" id="usecondarycontact" class="form-control form-control-lg" placeholder="Secondary Contact No." name="usecondarycontact" value="{{ x.secondarycontact }}"/>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div data-mdb-input-init class="form-outline">
+                        <input type="email" id="ucustomeremail" class="form-control form-control-lg" placeholder="Customer Email" name="ucustomeremail" value="{{ x.customeremail }}"/>
+                    </div>
                 </div>
               </div>
-              <div class="row">
-                <div class="col-md-6 mb-4">
+
+            <div class="row">
+              <div class="col-md-12 mb-4">
                   <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Have Done Pest Control Earlier" name="uhavedonepestcontrolearlier" value="{{ data.havedonepestcontrolearlier }}"/>
+                      <textarea id="ucustomeraddress" class="form-control form-control-lg" placeholder="Customer Address" name="ucustomeraddress" value="{{ x.customeraddress }}">{{ x.customeraddress }}</textarea>
                   </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Lead Status" name="uleadstatus" value="{{ data.leadstatus }}"/>
-                  </div>
-                </div>
               </div>
-              <div class="row">
+            </div>
+
+            <div class="row">
                 <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Type Of Lead" name="utypeoflead" value="{{ data.typeoflead }}"/>
-                  </div>
+                    <div data-mdb-input-init class="form-outline">
+                      <input type="url" id="ulocation" class="form-control form-control-lg" placeholder="Location" name="ulocation" value="{{ x.location }}" />
+                    </div>
                 </div>
                 <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Type Of Contract" name="utypeofcontract" value="{{ data.typeofcontract }}"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="date" id="firstName" class="form-control form-control-lg" placeholder="Lead Date" name="udateoflead" value="{{ data.dateoflead }}"/>
-                    <label for="dateoflead" style="font-size: 14px;">Lead Date</label>
-                  </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Contact No." name="ucontactno" value="{{ data.contactno }}"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Customer Email" name="ucustomeremail" value="{{ data.customeremail }}"/>
-                  </div>
-                </div>
-                <div class="col-md-6 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <input type="text" id="firstName" class="form-control form-control-lg" placeholder="Customer Email" name="uvisitorsname" value="{{ data.visitorsname }}"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12 mb-4">
-                  <div data-mdb-input-init class="form-outline">
-                    <textarea id="customeraddress" class="form-control form-control-lg" placeholder="Customer Address" name="ucustomeraddress">{{ data.customeraddress }}</textarea>
-                  </div>
+                    <div data-mdb-input-init class="form-outline">
+                      <input type="text" id="ucity" class="form-control form-control-lg" placeholder="City" name="ucity" value="{{ x.city }}"/>
+                    </div>
                 </div>
               </div>
               <div class="mt-4 pt-2 text-center" style="font-family: 'Playfair Display', serif;color:antiquewhite;">
                 <input class="btn btn-info btn-lg" type="submit" name="submit" value="Submit" />
-            </div>
+              </div>
               <div class="col-md-12"> 
                 <p style="color: red; text-align: center;">{{ msg1 }}</p>
               </div>
             </form>
+            {% endfor %}
         </div>
     </div>
   </div>

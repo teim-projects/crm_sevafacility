@@ -114,6 +114,36 @@
             margin-bottom: 20px;
         }
 
+
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .pagination li {
+            margin: 10px 5px;
+        }
+        .pagination a, .pagination span {
+            padding: 10px 12px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .pagination .current {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .pagination a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
         .form-inline .form-control {
             border: 1px solid #000000;
             color: #000000;
@@ -200,6 +230,73 @@
         font-size: 1rem; /* Readable font size */
         border-radius: 5px; /* Rounded button edges */
     }
+    .view-btn {
+            background-color: #303030;
+            color: rgb(246, 246, 246);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 20px;
+            border-color: #000000;
+        }
+        #modal {
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+            right: -100%;
+            width: 40%;
+            height: 100%;
+            background-color: white;
+            box-shadow: -2px 0 7px rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            transition: 0.3s;
+            overflow-y: auto;
+            padding: 20px;
+            
+        }
+
+        #modal.active {
+            right: 0;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: red;
+            font-size: 16px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+
+    /* Style for the dropdown content */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        /* box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); */
+        min-width: 100px;
+        z-index: 1;
+        border-radius: 30px;
+    }
+
+    .dropdown-content a {
+        color: rgb(0, 0, 0);
+        padding: 6px 10px;
+        text-decoration: none;
+        display: block;
+    }
+
+
+    /* Show dropdown on hover */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
 
     /* Smooth fade-in animation */
     @keyframes fadeIn {
@@ -236,7 +333,7 @@
     <h1> Lead Management Information</h1>
     <div class="search-form">
         <form method="GET" action="{%url 'display_lead_management' %}">
-            <input type="text" name="type_of_lead" value="{{ search_query }}" placeholder="Search by Type of Lead">
+            <input type="text" name="type_of_lead" value="{{ search_query }}" placeholder="Search by Lead Type/Phone no.">
             <button style="margin-left: 10px;" type="submit" class="btn btn-primary">Search</button>
 
             <a href="{% url 'display_lead_management' %}" class="btn btn-secondary ml-sm-2">Reset</a>
@@ -251,41 +348,64 @@
                 <tr>
                     <th>Sr.No</th>
                     <th>Source Of Lead </th>
-                    <th>Sales Person Name</th>
-                    <th>Have Done Pest Control Earlier</th>
-                    <th>Lead Status </th>
-                    <th>Type of Lead </th>
-                    <th>Type Of Contract </th>
-                    <th>Date Of Lead </th>
-                    <th>Contact No </th>
-                    <th>Customer Email </th>
-                    <th>Customer Address </th>
-                    <th>Visitor's Name </th>
-                    <th>further followup</th> 
+                    <th style="text-align: center;">Sales Person<br>Name</th>
+                    <th>
+                        <a style="text-decoration: none; color: #000000;" href="?sort=customername&order={% if current_sort == 'customername' and current_order == 'asc' %}desc{% else %}asc{% endif %}">
+                            Customer Name
+                            {% if current_sort == 'customername' %}
+                                {% if current_order == 'asc' %}
+                                    ▲
+                                {% else %}
+                                    ▼
+                                {% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>Lead Type</th>
+                    <th>Enquiry Date</th>
+                    <th>Contact No.</th>
+                    <th>Address</th>
+                    <th>Follow Up</th>
                     <th>Edit</th>
                     <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
-                {% for x in data %}
+                {% for x in page_obj %}
                 <tr>
-                    <td>{{forloop.counter}}</td>
+                    <td>
+                        {{ forloop.counter|add:start_index }}
+
+                        <div class="dropdown">
+                            <button class="view-btn" onclick="openModal('{{ x.id }}')"><i class="fas fa-magnifying-glass-plus"></i></button>
+                            <div class="dropdown-content">
+                                <a href="#">View More</a>
+                            </div>
+                        </div>
+                    </td>
                     <td>{{x.sourceoflead}}</td>
                     <td>{{x.salesperson}}</td>
-                    <td>{{x.havedonepestcontrolearlier}}</td>
-                    <td>{{x.leadstatus}}</td>
+                    <td>{{x.customername}}</td>
                     <td>{{x.typeoflead}}</td>
-                    <td>{{x.typeofcontract}}</td>
-                    <td>{{x.dateoflead}}</td>
-                    <td>{{x.contactno}}</td>
-                    <td>{{x.customeremail}}</td>
+                    <td>{{x.enquirydate}}</td>
+                    <td>{{x.primarycontact}}</td>
                     <td>{{x.customeraddress}}</td>
-                    <td>{{x.visitorsname}}</td>
-                    {% if x.typeoflead == 'Hot' %}
-                    <td><a href="/quotation_create" class="btn btn-primary" role="button">Generate Quotation</a></td>
-                    {% else %}
-                    <td></td>
-                    {% endif %}
+                    <td>
+
+                        {% if x.stage == 1 %}
+                            <a href="/first_followup/{{ x.id }}/2" class="btn btn-primary" role="button">Follow up-1</a>
+                        {% elif x.stage == 2 %}
+                            <a href="/second_followup/{{ x.id }}/3" class="btn btn-primary" role="button">Follow up-2</a>
+                        {% elif x.stage == 3 %}
+                            <a href="/third_followup/{{ x.id }}/4" class="btn btn-primary" role="button">Follow up-3</a>
+                        {% elif x.stage == 4 %}
+                            <a href="/final_followup/{{ x.id }}/5" class="btn btn-primary" role="button">Follow up-4</a>
+                        {% elif x.stage == 5 %}
+                            <a href="#" class="btn btn-primary" role="button">Completed</a>
+                        {% endif %}
+            
+                        
+                    </td>
                     <td><a href="/edit_lead_management/{{ x.id }}" class="btn btn-success" role="button">Edit</a></td>
                     <td><a href="/delete_lead_management/{{ x.id }}" class="btn btn-danger delete-link" role="button">Delete</a></td>
                     
@@ -297,6 +417,20 @@
             
             
         </table>
+
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="?page=1">&laquo; First</a></li>
+                <li><a href="?page={{ page_obj.previous_page_number }}">&lsaquo; Previous</a></li>
+            {% endif %}
+            
+            <span class="current">{{ page_obj.number }}</span>
+            
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">Next &rsaquo;</a></li>
+                <li><a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a></li>
+            {% endif %}
+        </div>
     </div>
 </div>
 
@@ -316,6 +450,12 @@
             </div>
         </form>
     </div>
+</div>
+
+<div id="modal">
+    <button class="close-btn" onclick="closeModal()">X</button>
+    <h3 style="font-family: 'Playfair Display', serif;font-weight: 900;text-align: center;">Lead Management Details</h3>
+    <div id="modal-content"></div>
 </div>
 
 
@@ -370,6 +510,20 @@
             confirmationModal.style.display = 'none';
         });
     });
+
+    function openModal(lead_id) {
+        fetch(`/get_lead_details/${lead_id}/`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('modal-content').innerHTML = html;
+                document.getElementById('modal').classList.add('active');
+            });
+
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.remove('active');
+    }
 
 </script>
 

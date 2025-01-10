@@ -12,6 +12,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout , admin
 from django.db.models import Sum, Count
 from crmapp.models import lead_management
+from crmapp.models import firstfollowup
+from crmapp.models import secondfollowup
+from crmapp.models import thirdfollowup
+from crmapp.models import finalfollowup
 import csv
 import datetime
 import matplotlib.pyplot as plt
@@ -31,6 +35,9 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from .models import TechnicianProfile
 from datetime import datetime
+import json
+from django.utils.dateparse import parse_date
+from django.db.models import Count
 
 def landing_page(request):
     return render(request , 'landing_page.html')
@@ -48,70 +55,188 @@ def index(request):
     invoice_data = invoice.objects.values('company_name').annotate(total_amount=Sum('total_amount'))
 
     # Fetch data for Lead Management
-    lead_data1 = lead_management.objects.values('leadstatus').annotate(count=Count('id'))
+    lead_data1 = lead_management.objects.values('typeoflead').annotate(count=Count('id'))
   
-    total_leads = lead_management.objects.count()
-    hot_leads = lead_management.objects.filter(typeoflead='Hot').count()
-    warm_leads = lead_management.objects.filter(typeoflead='Warm').count()
-    cold_leads = lead_management.objects.filter(typeoflead='Cold').count()
-    not_interested = lead_management.objects.filter(typeoflead='NotInterested').count()
-    loss_of_order = lead_management.objects.filter(typeoflead='LossOfOrder').count()
+    # total_leads = lead_management.objects.count()
+    # hot_leads = lead_management.objects.filter(typeoflead='Hot').count()
+    # warm_leads = lead_management.objects.filter(typeoflead='Warm').count()
+    # cold_leads = lead_management.objects.filter(typeoflead='Cold').count()
+    # not_interested = lead_management.objects.filter(typeoflead='NotInterested').count()
+    # loss_of_order = lead_management.objects.filter(typeoflead='LossOfOrder').count()
 
-    # Prepare data for the pie chart
-    lead_data = [hot_leads, warm_leads, cold_leads, not_interested, loss_of_order]
-    labels = ["Hot Leads", "Warm Leads", "Cold Leads", "Not Interested", "Loss of Order"]
+    # # Pie chart data
+    # lead_data = {
+    #     "labels": ["Hot Leads", "Warm Leads", "Cold Leads", "Not Interested", "Loss of Order"],
+    #     "datasets": [{
+    #         "data": [hot_leads, warm_leads, cold_leads, not_interested, loss_of_order],
+    #         "backgroundColor": ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+    #     }]
+    # }
+
+    # Fetch start_date and end_date from request
+    # start_date = request.GET.get('start_date')
+ 
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date and end_date:
+        # Filter leads by date range
+        filtered_leads = lead_management.objects.filter(enquirydate__range=[start_date, end_date])
+    else:
+        # Use all leads if no date range is provided
+        filtered_leads = lead_management.objects.all()
+
+    # Prepare lead type chart data
+    lead_data = {
+        "labels": ["Hot", "Warm", "Cold", "NotInterested", "LossOfOrder"],
+        "datasets": [{
+            "data": [
+                filtered_leads.filter(typeoflead='Hot').count(),
+                filtered_leads.filter(typeoflead='Warm').count(),
+                filtered_leads.filter(typeoflead='Cold').count(),
+                filtered_leads.filter(typeoflead='NotInterested').count(),
+                filtered_leads.filter(typeoflead='LossofOrder').count()
+            ],
+            "backgroundColor": ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+        }]
+    }
+
+    # Serialize the data to JSON
+    lead_data_json = json.dumps(lead_data)
+
+    # Retrieve the start and end dates from query parameters
+    start_date_followup = request.GET.get('start_date_followup')
+    end_date_followup = request.GET.get('end_date_followup')
+
+    # Default to today's date if no date range is provided
+    if start_date_followup:
+        start_date_followup = datetime.strptime(start_date_followup, "%Y-%m-%d")
+    if end_date_followup:
+        end_date_followup = datetime.strptime(end_date_followup, "%Y-%m-%d")
+
+    # Define the stages
+    stages = {
+        1: "No Follow-Up Done",
+        2: "First Follow-Up Done",
+        3: "Second Follow-Up Done",
+        4: "Third Follow-Up Done",
+        5: "Final Follow-Up Done"
+    }
+
+    # Filter the lead_management table by the date range if provided
+    if start_date_followup and end_date_followup:
+        stage_counts = lead_management.objects.filter(enquirydate__range=[start_date_followup, end_date_followup]) \
+            .values('stage') \
+            .annotate(count=Count('id')) \
+            .order_by('stage')
+    else:
+        # If no date range, fetch all data
+        stage_counts = lead_management.objects.values('stage') \
+            .annotate(count=Count('id')) \
+            .order_by('stage')
+
+    # Prepare the labels and data for the chart
+    follow_up_labels = [stages[stage['stage']] for stage in stage_counts]
+    follow_up_data = [stage['count'] for stage in stage_counts]
+
 
     pest_control_count = Product.objects.filter(category='Pest Control').count()
     fumigation_count = Product.objects.filter(category='Fumigation').count()
     product_sell_count = Product.objects.filter(category='Product Sell').count()
 
-    # Prepare data for the bar chart
-    categories = ['Pest Control', 'Fumigation', 'Product Sell']
-    counts = [pest_control_count, fumigation_count, product_sell_count]
-
-    # Create the pie chart using matplotlib
-    fig, ax = plt.subplots()
-    ax.pie(lead_data, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'])
-    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-    # plt1= plt.subplots()
-    fig1, ax1 = plt.subplots()
-    ax1.bar(categories, counts, color=['#FF6384', '#36A2EB', '#FFCE56'])
-    ax1.set_title('Number of Products per Category')
-    ax1.set_xlabel('Product Category')
-    ax1.set_ylabel('Number of Products')
-
-    # Save the figure to a BytesIO object to convert it into an image for the web
-    buffer = BytesIO()
-    fig.savefig(buffer, format='png')
-    buffer.seek(0)
-    
-    buffer1 = BytesIO()
-    fig1.savefig(buffer1, format='png')
-    buffer1.seek(0)
-
-    # Convert the image to base64
-    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-
-    image_base64_1 = base64.b64encode(buffer1.getvalue()).decode('utf-8')
+    # Bar chart data
+    bar_chart_data = {
+        "labels": ['Pest Control', 'Fumigation', 'Product Sell'],
+        "datasets": [{
+            "label": "Number of Products per Category",
+            "data": [pest_control_count, fumigation_count, product_sell_count],
+            "backgroundColor": ['#FF6384', '#36A2EB', '#FFCE56'],
+        }]
+    }
 
     print('testtttttttttttttttttttt')
+
+
+
+     # Extract service-specific date filters
+    start_date_service = request.GET.get('start_date_service')
+    end_date_service = request.GET.get('end_date_service')
+
+    # Filter service management data by service_date range if present
+    if start_date_service and end_date_service:
+        start_date_service_obj = datetime.strptime(start_date_service, "%Y-%m-%d")
+        end_date_service_obj = datetime.strptime(end_date_service, "%Y-%m-%d")
+
+        # Apply date filter on service_date field for contract type distribution
+        service_data = service_management.objects.filter(
+            Q(service_date__gte=start_date_service_obj) & Q(service_date__lte=end_date_service_obj)
+        ).values("contract_type").annotate(count=Count("id")).order_by("contract_type")
+    else:
+        # Default data if no service date filter is applied
+        service_data = service_management.objects.values("contract_type").annotate(count=Count("id")).order_by("contract_type")
+
+    # Prepare data for the Contract Type Distribution chart
+    labellist = [entry["contract_type"] for entry in service_data]
+    countlist = [entry["count"] for entry in service_data]
+
+     # Extract query parameters
+    start_date_qo = request.GET.get('start_date_qo')
+    end_date_qo = request.GET.get('end_date_qo')
+    filter_type = request.GET.get('filter_type')
+
+    # Initialize counts
+    quotations_count = 0
+    orders_count = 0
+
+    # Apply date filters if present
+    if start_date_qo and end_date_qo:
+        # Parse dates
+        start_date_obj = datetime.strptime(start_date_qo, "%Y-%m-%d")
+        end_date_obj = datetime.strptime(end_date_qo, "%Y-%m-%d")
+
+        if filter_type == 'quotation':
+            # Filter quotations by date range
+            quotations_count = quotation.objects.filter(
+                Q(quotation_date__gte=start_date_obj) & Q(quotation_date__lte=end_date_obj)
+            ).count()
+            orders_count = invoice.objects.count()  # Unfiltered
+        elif filter_type == 'invoice':
+            # Filter invoices by date range
+            orders_count = invoice.objects.filter(
+                Q(date__gte=start_date_obj) & Q(date__lte=end_date_obj)
+            ).count()
+            quotations_count = quotation.objects.count()  # Unfiltered
+    else:
+        # Default counts without filters
+        quotations_count = quotation.objects.count()
+        orders_count = invoice.objects.count()
+
+    
     # Prepare context
     context = {
-        'total_leads': total_leads,
-        'hot_leads': hot_leads,
-        'warm_leads': warm_leads,
-        'cold_leads': cold_leads,
-        'not_interested': not_interested,
-        'loss_of_order': loss_of_order,
-        'chart': image_base64 , # Send the chart as a base64 string to the template
-        'product_chart': image_base64_1,  # Send the chart as a base64 string to the template
+        # 'total_leads': leads.count(),
+        # 'hot_leads': hot_leads,
+        # 'warm_leads': warm_leads,
+        # 'cold_leads': cold_leads,
+        # 'not_interested': not_interested,
+        # 'loss_of_order': loss_of_order,
+        'lead_data': lead_data_json,
         'service_data': service_data,
         'quotation_data': quotation_data,
         'invoice_data': invoice_data,
-        'lead_data1': lead_data1,
+        # 'lead_data1': lead_data1,
+        'labellist': json.dumps(labellist),  # Serialize labels
+        'countlist': json.dumps(countlist),  # Serialize counts
+        "quotationlist": json.dumps(["Quotations", "Orders"]),
+        "order": json.dumps([quotations_count, orders_count]),
+        'lead_data': json.dumps(lead_data),
+        'bar_chart_data': json.dumps(bar_chart_data),
+        'follow_up_labels': json.dumps(follow_up_labels),
+        'follow_up_data': json.dumps(follow_up_data),
     }
     print("chartctfgvbhjnbgtfvrdcew:::::::::::::::::::")
+
+
     return render(request, 'index.html', context)
 
     # return render(request, 'index.html', context)
@@ -197,68 +322,168 @@ def user_login(request):
             login(request, u)
 
 
-            total_leads = lead_management.objects.count()
-            hot_leads = lead_management.objects.filter(typeoflead='Hot').count()
-            warm_leads = lead_management.objects.filter(typeoflead='Warm').count()
-            cold_leads = lead_management.objects.filter(typeoflead='Cold').count()
-            not_interested = lead_management.objects.filter(typeoflead='NotInterested').count()
-            loss_of_order = lead_management.objects.filter(typeoflead='LossOfOrder').count()
+           
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
 
-            # Prepare data for the pie chart
-            lead_data = [hot_leads, warm_leads, cold_leads, not_interested, loss_of_order]
-            labels = ["Hot Leads", "Warm Leads", "Cold Leads", "Not Interested", "Loss of Order"]
+            if start_date and end_date:
+                # Filter leads by date range
+                filtered_leads = lead_management.objects.filter(enquirydate__range=[start_date, end_date])
+            else:
+                # Use all leads if no date range is provided
+                filtered_leads = lead_management.objects.all()
+
+            # Prepare lead type chart data
+            lead_data = {
+                "labels": ["Hot", "Warm", "Cold", "NotInterested", "LossOfOrder"],
+                "datasets": [{
+                    "data": [
+                        filtered_leads.filter(typeoflead='Hot').count(),
+                        filtered_leads.filter(typeoflead='Warm').count(),
+                        filtered_leads.filter(typeoflead='Cold').count(),
+                        filtered_leads.filter(typeoflead='NotInterested').count(),
+                        filtered_leads.filter(typeoflead='LossofOrder').count()
+                    ],
+                    "backgroundColor": ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                }]
+            }
+
+            # Serialize the data to JSON
+            lead_data_json = json.dumps(lead_data)
+
+            # Retrieve the start and end dates from query parameters
+            start_date_followup = request.GET.get('start_date_followup')
+            end_date_followup = request.GET.get('end_date_followup')
+
+            # Default to today's date if no date range is provided
+            if start_date_followup:
+                start_date_followup = datetime.strptime(start_date_followup, "%Y-%m-%d")
+            if end_date_followup:
+                end_date_followup = datetime.strptime(end_date_followup, "%Y-%m-%d")
+
+            # Define the stages
+            stages = {
+                1: "No Follow-Up Done",
+                2: "First Follow-Up Done",
+                3: "Second Follow-Up Done",
+                4: "Third Follow-Up Done",
+                5: "Final Follow-Up Done"
+            }
+
+            # Filter the lead_management table by the date range if provided
+            if start_date_followup and end_date_followup:
+                stage_counts = lead_management.objects.filter(enquirydate__range=[start_date_followup, end_date_followup]) \
+                    .values('stage') \
+                    .annotate(count=Count('id')) \
+                    .order_by('stage')
+            else:
+                # If no date range, fetch all data
+                stage_counts = lead_management.objects.values('stage') \
+                    .annotate(count=Count('id')) \
+                    .order_by('stage')
+
+            # Prepare the labels and data for the chart
+            follow_up_labels = [stages[stage['stage']] for stage in stage_counts]
+            follow_up_data = [stage['count'] for stage in stage_counts]
+
 
             pest_control_count = Product.objects.filter(category='Pest Control').count()
             fumigation_count = Product.objects.filter(category='Fumigation').count()
             product_sell_count = Product.objects.filter(category='Product Sell').count()
 
-            # Prepare data for the bar chart
-            categories = ['Pest Control', 'Fumigation', 'Product Sell']
-            counts = [pest_control_count, fumigation_count, product_sell_count]
-
-
-
-
-
-            # Create the pie chart using matplotlib
-            fig, ax = plt.subplots()
-            ax.pie(lead_data, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'])
-            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-            # plt1= plt.subplots()
-            fig1, ax1 = plt.subplots()
-            ax1.bar(categories, counts, color=['#FF6384', '#36A2EB', '#FFCE56'])
-            ax1.set_title('Number of Products per Category')
-            ax1.set_xlabel('Product Category')
-            ax1.set_ylabel('Number of Products')
-
-            # Save the figure to a BytesIO object to convert it into an image for the web
-            buffer = BytesIO()
-            fig.savefig(buffer, format='png')
-            buffer.seek(0)
-           
-            buffer1 = BytesIO()
-            fig1.savefig(buffer1, format='png')
-            buffer1.seek(0)
-    
-            # Convert the image to base64
-            image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-
-            image_base64_1 = base64.b64encode(buffer1.getvalue()).decode('utf-8')
+            # Bar chart data
+            bar_chart_data = {
+                "labels": ['Pest Control', 'Fumigation', 'Product Sell'],
+                "datasets": [{
+                    "label": "Number of Products per Category",
+                    "data": [pest_control_count, fumigation_count, product_sell_count],
+                    "backgroundColor": ['#FF6384', '#36A2EB', '#FFCE56'],
+                }]
+            }
 
             print('testtttttttttttttttttttt')
+
+
+
+            # Extract service-specific date filters
+            start_date_service = request.GET.get('start_date_service')
+            end_date_service = request.GET.get('end_date_service')
+
+            # Filter service management data by service_date range if present
+            if start_date_service and end_date_service:
+                start_date_service_obj = datetime.strptime(start_date_service, "%Y-%m-%d")
+                end_date_service_obj = datetime.strptime(end_date_service, "%Y-%m-%d")
+
+                # Apply date filter on service_date field for contract type distribution
+                service_data = service_management.objects.filter(
+                    Q(service_date__gte=start_date_service_obj) & Q(service_date__lte=end_date_service_obj)
+                ).values("contract_type").annotate(count=Count("id")).order_by("contract_type")
+            else:
+                # Default data if no service date filter is applied
+                service_data = service_management.objects.values("contract_type").annotate(count=Count("id")).order_by("contract_type")
+
+            # Prepare data for the Contract Type Distribution chart
+            labellist = [entry["contract_type"] for entry in service_data]
+            countlist = [entry["count"] for entry in service_data]
+
+            # Extract query parameters
+            start_date_qo = request.GET.get('start_date_qo')
+            end_date_qo = request.GET.get('end_date_qo')
+            filter_type = request.GET.get('filter_type')
+
+            # Initialize counts
+            quotations_count = 0
+            orders_count = 0
+
+            # Apply date filters if present
+            if start_date_qo and end_date_qo:
+                # Parse dates
+                start_date_obj = datetime.strptime(start_date_qo, "%Y-%m-%d")
+                end_date_obj = datetime.strptime(end_date_qo, "%Y-%m-%d")
+
+                if filter_type == 'quotation':
+                    # Filter quotations by date range
+                    quotations_count = quotation.objects.filter(
+                        Q(quotation_date__gte=start_date_obj) & Q(quotation_date__lte=end_date_obj)
+                    ).count()
+                    orders_count = invoice.objects.count()  # Unfiltered
+                elif filter_type == 'invoice':
+                    # Filter invoices by date range
+                    orders_count = invoice.objects.filter(
+                        Q(date__gte=start_date_obj) & Q(date__lte=end_date_obj)
+                    ).count()
+                    quotations_count = quotation.objects.count()  # Unfiltered
+            else:
+                # Default counts without filters
+                quotations_count = quotation.objects.count()
+                orders_count = invoice.objects.count()
+            
+            
             # Prepare context
             context = {
-                'total_leads': total_leads,
-                'hot_leads': hot_leads,
-                'warm_leads': warm_leads,
-                'cold_leads': cold_leads,
-                'not_interested': not_interested,
-                'loss_of_order': loss_of_order,
-                'chart': image_base64 , # Send the chart as a base64 string to the template
-                'product_chart': image_base64_1,  # Send the chart as a base64 string to the template
+                # 'total_leads': leads.count(),
+                # 'hot_leads': hot_leads,
+                # 'warm_leads': warm_leads,
+                # 'cold_leads': cold_leads,
+                # 'not_interested': not_interested,
+                # 'loss_of_order': loss_of_order,
+                'lead_data': lead_data_json,
+                'service_data': service_data,
+                # 'quotation_data': quotation_data,
+                # 'invoice_data': invoice_data,
+                # 'lead_data1': lead_data1,
+                'labellist': json.dumps(labellist),  # Serialize labels
+                'countlist': json.dumps(countlist),  # Serialize counts
+                "quotationlist": json.dumps(["Quotations", "Orders"]),
+                "order": json.dumps([quotations_count, orders_count]),
+                'lead_data': json.dumps(lead_data),
+                'bar_chart_data': json.dumps(bar_chart_data),
+                'follow_up_labels': json.dumps(follow_up_labels),
+                'follow_up_data': json.dumps(follow_up_data),
             }
             print("chartctfgvbhjnbgtfvrdcew:::::::::::::::::::")
+
+
             return render(request, 'index.html', context)
 
 
@@ -320,24 +545,33 @@ def customer_details_create(request):
             m=customer_details.objects.create(firstname=firstname, lastname=lastname , primaryemail=primaryemail,  secondaryemail=secondaryemail , primarycontact=primarycontact , secondarycontact=secondarycontact , contactperson=contactperson , customersegment=customersegment , shifttopartyaddress=shifttopartyaddress , shifttopartycity=shifttopartycity , shifttopartystate=shifttopartystate , shifttopartypostal=shifttopartypostal , soldtopartyaddress=soldtopartyaddress , soldtopartycity=soldtopartycity , soldtopartystate=soldtopartystate , soldtopartypostal=soldtopartypostal , customerid=customerid)
 
             m.save()
-            return redirect( '/index')
+            return redirect( '/display_customer')
 
 
 from django.shortcuts import render
 from .models import Product
 
+from django.shortcuts import render
+from .models import Product
 def product_list(request):
-    products = Product.objects.all()  # Fetch all products
-    categories = Product.objects.values_list('category', flat=True).distinct()  # Fetch distinct categories
-    total_products = products.count()
-    products_per_page = 10
-    total_pages = (total_products + products_per_page - 2) // products_per_page  # Calculate total pages
+    category_filter = request.GET.get('category', 'all')
+    if category_filter and category_filter != 'all':
+        products = Product.objects.filter(category=category_filter)
+    else:
+        products = Product.objects.all()
 
-    return render(request, 'product_list.html', {
+    categories = Product.CATEGORY_CHOICES
+    categories = [choice[0] for choice in categories]
+
+    context = {
         'products': products,
         'categories': categories,
-        'total_pages': total_pages,
-    })
+        'selected_category': category_filter,
+    }
+    return render(request, 'product_list.html', context)
+
+
+
 
 
 def delete_product(request, product_id):
@@ -395,6 +629,7 @@ def service_management_create(request):
             if apply_gst :
                 gst_status = 'GST'
             else :
+                total_with_gst = total_price   
                 gst_status = 'NON-GST'    
             delivery_time = request.POST['delivery_time']
 
@@ -440,7 +675,7 @@ def service_management_create(request):
             instance.save()
 
 
-            return redirect('/index')  # Redirect after successful submission
+            return redirect('/display_service_management')  # Redirect after successful submission
 
         except Exception as e:
             # Handle any errors
@@ -532,7 +767,7 @@ def quotation_create(request):
             latest_quotation.save()
 
         quotation_obj.save()
-        return redirect('/index')  
+        return redirect('/display_quotation')  
 
     context = {
         'customers': customers,
@@ -549,6 +784,25 @@ def quotation_history(request, customer_id):
         'quotations': quotations,
     }
     return render(request, 'quotation_history.html', context)
+
+
+
+import random
+from django.utils.timezone import now
+import string
+
+def generate_invoice_number():
+    # Use "INV" as the first 3 characters
+    alphanumeric_part = "INV"
+
+    # Generate remaining 7 digits
+    numeric_part = ''.join(random.choices(string.digits, k=7))
+
+    # Combine both parts
+    invoice_no = alphanumeric_part + numeric_part
+
+    return invoice_no
+
 
 
 def invoice_create(request):
@@ -577,6 +831,7 @@ def invoice_create(request):
         designation = request.POST['designation']
         customer_id = request.POST['customer_id']
         customer = customer_details.objects.get(id=customer_id)
+        invoice_no = generate_invoice_number()
         total_amount = quantity * price
         
         discounted_amount = total_amount - (total_amount * (discount / 100))
@@ -606,12 +861,12 @@ def invoice_create(request):
             customer=customer,
             total_amount_with_gst=total_amount_with_gst,
             total_amount=total_amount,
-
+            invoice_no=invoice_no,
 
         )
 
         m.save()
-        return redirect('/index') 
+        return redirect('/display_invoice') 
         
     context = {
         'customers': customers,
@@ -619,7 +874,121 @@ def invoice_create(request):
     return render(request, 'invoice.html', context)
 
    
+def firstfollowup_create(request,lead_id,next_stage):
+    lead = get_object_or_404(lead_management, id=lead_id)
+    lead.stage = next_stage
+    lead.save()
 
+    if request.method == 'POST':
+        havedonepestcontrolearlier = request.POST['havedonepestcontrolearlier']
+        agency = request.POST['agency']
+        inspectiononsite = request.POST['inspectiononsite']
+        levelofinspection = request.POST['levelofinspection']
+        quotationgiven = request.POST['quotationgiven']
+        quotationamount = float(request.POST['quotationamount'])
+        mailsent = request.POST['mailsent']
+        customermeeting = request.POST['customermeeting']
+        firstremark = request.POST['firstremark']
+        secondfollowupdate = request.POST['secondfollowupdate']
+
+        m = firstfollowup.objects.create(
+            havedonepestcontrolearlier=havedonepestcontrolearlier,
+            agency=agency,
+            inspectiononsite=inspectiononsite,
+            levelofinspection=levelofinspection,
+            quotationgiven=quotationgiven,
+            quotationamount=quotationamount,
+            mailsent=mailsent,
+            customermeeting=customermeeting,
+            firstremark=firstremark,
+            secondfollowupdate=secondfollowupdate,
+            lead=lead,
+        )
+
+        m.save()
+        return redirect('/display_followup') 
+        
+    context = {
+        'lead': lead,
+    }
+    return render(request, 'first_followup.html', context)
+
+def secondfollowup_create(request,lead_id,next_stage):
+    lead = get_object_or_404(lead_management, id=lead_id)
+    lead.stage = next_stage
+    lead.save()
+
+    if request.method == 'POST':
+        negotiationstage = request.POST['negotiationstage']
+        mailsent2 = request.POST['mailsent2']
+        secondremark = request.POST['secondremark']
+        thirdfollowupdate = request.POST['thirdfollowupdate']
+
+        m = secondfollowup.objects.create(
+            negotiationstage=negotiationstage,
+            mailsent2=mailsent2,
+            secondremark=secondremark,
+            thirdfollowupdate=thirdfollowupdate,
+            lead=lead,
+        )
+
+        m.save()
+        return redirect('/display_followup') 
+        
+    context = {
+        'lead': lead,
+        }
+    return render(request, 'second_followup.html', context)
+
+def thirdfollowup_create(request,lead_id,next_stage):
+    lead = get_object_or_404(lead_management, id=lead_id)
+    lead.stage = next_stage
+    lead.save()
+
+    if request.method == 'POST':
+        thirdremark = request.POST['thirdremark']
+        fourthfollowupdate = request.POST['fourthfollowupdate']
+
+        m = thirdfollowup.objects.create(
+            thirdremark=thirdremark,
+            fourthfollowupdate=fourthfollowupdate,
+            lead=lead,
+        )
+
+        m.save()
+        return redirect('/display_followup') 
+        
+    context = {
+        'lead': lead,
+        }
+    return render(request, 'third_followup.html', context)
+
+def finalfollowup_create(request,lead_id,next_stage):
+    lead = get_object_or_404(lead_management, id=lead_id)
+    lead.stage = next_stage
+    lead.save()
+    
+    if request.method == 'POST':
+        fourthremark = request.POST['fourthremark']
+        finalstatus = request.POST['finalstatus']
+        contracttype = request.POST['contracttype']
+        bookingamount = request.POST['bookingamount']
+
+        m = finalfollowup.objects.create(
+            fourthremark=fourthremark,
+            finalstatus=finalstatus,
+            contracttype=contracttype,
+            bookingamount=bookingamount,
+            lead=lead,
+        )
+
+        m.save()
+        return redirect('/display_followup') 
+        
+    context = {
+        'lead': lead,
+        }
+    return render(request, 'final_followup.html', context)
 
 # def inventory_create(request):
 #     if request.method=='GET':
@@ -644,82 +1013,331 @@ def lead_management_create(request):
     else:
         sourceoflead = request.POST['sourceoflead']
         salesperson = request.POST['salesperson']
-        havedonepestcontrolearlier = request.POST['havedonepestcontrolearlier']
-        leadstatus = request.POST['leadstatus']
-        typeoflead = request.POST['typeoflead']
-        typeofcontract = request.POST['typeofcontract']
-        dateoflead = request.POST['dateoflead']
-        contactno = request.POST.get('contactno')
+        customername = request.POST['customername']
+        customersegment = request.POST['customersegment']
+        enquirydate = request.POST['enquirydate']
+        contactedby = request.POST['contactedby']
+        maincategory = request.POST['maincategory']
+        subcategory = request.POST['subcategory']
+        primarycontact = request.POST.get('primarycontact')
+        secondarycontact = request.POST.get('secondarycontact')
         customeremail = request.POST.get('customeremail')
         customeraddress = request.POST.get('customeraddress')
-        visitorsname=request.POST.get('visitorsname')
+        location=request.POST.get('location')
+        city=request.POST.get('city', 'Null')
+        typeoflead = request.POST['typeoflead']
+        firstfollowupdate = request.POST['firstfollowupdate']
+        
 
         m = lead_management.objects.create(
             sourceoflead=sourceoflead,
             salesperson=salesperson,
-            havedonepestcontrolearlier=havedonepestcontrolearlier,
-            leadstatus=leadstatus,
+            customername=customername,
+            customersegment=customersegment,
+            enquirydate=enquirydate,
+            contactedby=contactedby,
+            maincategory=maincategory,
+            subcategory=subcategory,
+            primarycontact=primarycontact,
+            secondarycontact=secondarycontact,
+            location=location,
+            city=city,
             typeoflead=typeoflead,
-            typeofcontract=typeofcontract,
-            dateoflead=dateoflead,
-            contactno=contactno,
             customeremail=customeremail,
             customeraddress=customeraddress,
-            visitorsname=visitorsname
+            firstfollowupdate=firstfollowupdate,
         )
 
         m.save()
-        return redirect('/index')
+        return redirect('/display_lead_management')
+
+# In crmapp/views.py
+
+from django.shortcuts import render
+from .models import lead_management, firstfollowup, secondfollowup, thirdfollowup, finalfollowup
+
+
+from django.db.models import Q  # For complex queries
+
+def display_followup(request):
+    search_query = request.GET.get('q', '')  # Get the search query
+    
+    leads = lead_management.objects.all()
+    if search_query:
+        leads = leads.filter(
+            Q(customername__icontains=search_query) |  # Search by customer name
+            Q(customeremail__icontains=search_query)  # Optionally, search by email
+        )
+    
+    followups = []
+    for lead in leads:
+        followups.append({
+            "lead": lead,
+            "firstfollowup": firstfollowup.objects.filter(lead=lead).first(),
+            "secondfollowup": secondfollowup.objects.filter(lead=lead).first(),
+            "thirdfollowup": thirdfollowup.objects.filter(lead=lead).first(),
+            "finalfollowup": finalfollowup.objects.filter(lead=lead).first(),
+        })
+    
+    context = {
+        "followups": followups,
+        "search_query": search_query,
+    }
+    return render(request, 'display_followup.html', context)
+
+def get_customer_details(request, customer_id):
+    customer = get_object_or_404(customer_details, customerid=customer_id)
+    return render(request, 'customer_details_modal.html', {'customer': customer})
+
 
 def display_customer(request):
-    m=customer_details.objects.all()
+    query = request.GET.get('search', '')
+    sort_order = request.GET.get('order', 'asc')
+    sort_by = request.GET.get('sort_by', 'customerid')
 
-    context={}
-    context['data'] =m
-    return render(request , 'display_customer.html' , context)
+    if query:
+        m = (customer_details.objects.filter(customerid__icontains=query) |
+             customer_details.objects.filter(primarycontact__icontains=query))
+    else:
+        m = customer_details.objects.all()
+
+    if sort_by == 'firstname':
+        if sort_order == 'desc':
+            m = m.order_by('-firstname')  
+        else:
+            m = m.order_by('firstname')  
+    else:
+        if sort_order == 'desc':
+            m = m.order_by('-customerid')  
+        else:
+            m = m.order_by('customerid')
+
+    paginator = Paginator(m, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    start_index = (page_obj.number - 1) * paginator.per_page
+
+    context = {
+        'current_order': sort_order,
+        'current_sort_by': sort_by,
+        'page_obj': page_obj,
+        'start_index': start_index,
+        'data': page_obj.object_list,  
+    }
+
+    return render(request, 'display_customer.html', context)
 
 
+from crmapp.models import Reschedule
+def display_reschedule(request):
+    query = request.GET.get('search', '').strip()
+    sort_order = request.GET.get('order', 'asc')
+    sort_by = request.GET.get('sort_by', 'customerid')
+    
+    if query:
+        # Filter results by customer ID or service ID
+        m = Reschedule.objects.filter(
+            service__customer__customerid__icontains=query
+        ) | Reschedule.objects.filter(
+            service__id__icontains=query
+        )
+    else:
+        # Display all records if no search query
+        m = Reschedule.objects.all()
 
+    if sort_by == 'service_id':
+        if sort_order == 'desc':
+            m = m.order_by('-service__id')  
+        else:
+            m = m.order_by('service__id')  
+    else:
+        if sort_order == 'desc':
+            m = m.order_by('-service__customer__customerid')  
+        else:
+            m = m.order_by('service__customer__customerid')
 
-# Display Service Management 
+    paginator = Paginator(m, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    start_index = (page_obj.number - 1) * paginator.per_page
+
+    context = {
+        'page_obj': page_obj,
+        'start_index': start_index,
+        'search_query': query,
+        'current_order': sort_order,
+        'current_sort_by': sort_by,
+    }
+
+    return render(request, 'display_reschedule.html', context)
 
 
 def display_service_management(request):
-    m=service_management.objects.all()
+    query = request.GET.get('search', '')
+    sort_order = request.GET.get('order', 'asc')
+    sort_by = request.GET.get('sort_by', 'customerid')  
+    contract_type = request.GET.get('contract_type', '')
 
-    context={}
-    context['data'] =m
-    return render(request , 'display_service_management.html' , context)
+    if query:
+        m = service_management.objects.filter(customer__customerid__icontains=query) | service_management.objects.filter(customer__primarycontact__icontains=query)
+    else:
+        m = service_management.objects.all()
+
+    # Filter by contract type if provided
+    if contract_type:
+        m = m.filter(contract_type=contract_type)
+
+    # Sorting logic
+    if sort_by == 'firstname':
+        if sort_order == 'desc':
+            m = m.order_by('-customer__firstname')  
+        else:
+            m = m.order_by('customer__firstname')  
+    else:
+        if sort_order == 'desc':
+            m = m.order_by('-customer__customerid')  
+        else:
+            m = m.order_by('customer__customerid')
+
+    paginator = Paginator(m, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    start_index = (page_obj.number - 1) * paginator.per_page
+
+    context = {
+        'current_order': sort_order,
+        'current_sort_by': sort_by,
+        'page_obj': page_obj,
+        'start_index': start_index,
+        'contract_type': contract_type,
+    }
+    context['data'] = m
+
+    return render(request, 'display_service_management.html', context)
+
+def get_service_details(request, service_id):
+    service = get_object_or_404(service_management, id=service_id)
+    return render(request, 'service_details_modal.html', {'service': service})
 
 def display_allocation(request):
-    m=service_management.objects.all()
+    query = request.GET.get('search', '')
+    sort_order = request.GET.get('order', 'asc')
+    sort_by = request.GET.get('sort_by', 'customerid')  
 
-    context={}
-    context['data'] =m
-    return render(request , 'display_allocation.html' , context)
+    if query:
+        m = service_management.objects.filter(
+            customer__customerid__icontains=query
+        ) | service_management.objects.filter(
+            customer__primarycontact__icontains=query
+        )
+    else:
+        m = service_management.objects.all()
 
+    if sort_by == 'firstname':
+        if sort_order == 'desc':
+            m = m.order_by('-customer__firstname')  
+        else:
+            m = m.order_by('customer__firstname')  
+    else:
+        if sort_order == 'desc':
+            m = m.order_by('-customer__customerid')  
+        else:
+            m = m.order_by('customer__customerid')
 
-# Display Quotation
+    paginator = Paginator(m, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    start_index = (page_obj.number - 1) * paginator.per_page
+
+    context = {
+        'current_order': sort_order,
+        'current_sort_by': sort_by,
+        'page_obj': page_obj,
+        'start_index': start_index,
+    }
+    return render(request, 'display_allocation.html', context)
+
+def get_allocation_details(request, service_id):
+    allocation = get_object_or_404(service_management, id=service_id)
+    return render(request, 'allocation_details_modal.html', {'allocation': allocation})
 
 def display_quotation(request):
-    # Fetch only quotations where status is 'active'
-    m = quotation.objects.filter(status='active')
+    query = request.GET.get('search', '')
+    sort_order = request.GET.get('order', 'asc')
+    sort_by = request.GET.get('sort_by', 'customerid')  
 
-    context = {}
-    context['data'] = m
+    if query:
+        m = quotation.objects.filter(customer__customerid__icontains=query, status='active')
+    else:
+        m = quotation.objects.filter(status='active')
+
+    if sort_by == 'firstname':
+        if sort_order == 'desc':
+            m = m.order_by('-customer__firstname')  
+        else:
+            m = m.order_by('customer__firstname')  
+    else:
+        if sort_order == 'desc':
+            m = m.order_by('-customer__customerid')  
+        else:
+            m = m.order_by('customer__customerid')
+
+    paginator = Paginator(m, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    start_index = (page_obj.number - 1) * paginator.per_page
+
+    context = {
+        'current_order': sort_order,
+        'current_sort_by': sort_by,
+        'page_obj': page_obj,
+        'start_index': start_index,
+    }
     return render(request, 'display_quotation.html', context)
 
-
-
-# Display Invoice
+def get_quotation_details(request, quotation_id):
+    quotation_var = get_object_or_404(quotation, id=quotation_id)
+    return render(request, 'quotation_details_modal.html', {'quotation_var': quotation_var})
 
 def display_invoice(request):
-    m=invoice.objects.all()
+    query = request.GET.get('search', '')
+    sort_order = request.GET.get('order', 'asc')
+    sort_by = request.GET.get('sort_by', 'customerid')  
+    
+    if query:
+        m = invoice.objects.filter(customer__customerid__icontains=query) & invoice.objects.filter(invoice_no__icontains=query)
+    else:
+        m = invoice.objects.all()
+    
+    if sort_by == 'firstname':
+        if sort_order == 'desc':
+            m = m.order_by('-customer__firstname')  
+        else:
+            m = m.order_by('customer__firstname')  
+    else:
+        if sort_order == 'desc':
+            m = m.order_by('-customer__customerid')  
+        else:
+            m = m.order_by('customer__customerid')
 
-    context={}
-    context['data'] =m
-    return render(request , 'display_invoice.html' , context)
+    paginator = Paginator(m, 10)  
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
+    start_index = (page_obj.number - 1) * paginator.per_page
+
+    context = {
+        'current_order': sort_order,
+        'current_sort_by': sort_by,
+        'page_obj': page_obj,
+        'start_index': start_index,
+    }
+    return render(request, 'display_invoice.html', context)
+
+
+def get_invoice_details(request, invoice_id):
+    invoice_var = get_object_or_404(invoice, id=invoice_id)
+    return render(request, 'invoice_details_modal.html', {'invoice_var': invoice_var})
 
 
 # Display Inventory
@@ -737,24 +1355,48 @@ def display_invoice(request):
 
 
 
-def display_lead_management(request):
-    # Get the search query from the request
-    search_query = request.GET.get('type_of_lead', '')
+from django.db.models import Q
 
-    # Filter based on the search query
-    if search_query:
-        m = lead_management.objects.filter(typeoflead__icontains=search_query)
+def display_lead_management(request):
+    search_query = request.GET.get('type_of_lead', '').replace('_', ' ').lower()
+    sort_by = request.GET.get('sort', 'customername')  # Default sort by 'customername'
+    order = request.GET.get('order', 'asc')  # Default order is 'asc'
+
+    # Determine the sorting order
+    if order == 'desc':
+        order_by = '-' + sort_by  # If order is descending, prepend with a minus sign
     else:
-        m = lead_management.objects.all()
+        order_by = sort_by  # Ascending order
+
+    # Filter based on search query
+    if search_query:
+        m = lead_management.objects.filter(
+            Q(typeoflead__icontains=search_query) | Q(primarycontact__icontains=search_query)
+        ).order_by(order_by)
+    else:
+        m = lead_management.objects.all().order_by(order_by)
+
+    paginator = Paginator(m, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    start_index = (page_obj.number - 1) * paginator.per_page
 
     context = {
         'data': m,
-        'search_query': search_query  # Pass the current search query back to the template
+        'search_query': search_query,
+        'page_obj': page_obj,
+        'start_index': start_index,
+        'current_sort': sort_by,
+        'current_order': order
     }
 
     return render(request, 'display_lead_management.html', context)
 
 
+
+def get_lead_details(request, lead_id):
+    lead = get_object_or_404(lead_management, id=lead_id)
+    return render(request, 'lead_details_modal.html', {'lead': lead})
 
 # Delete Section
 # Delete Customer Details
@@ -983,8 +1625,7 @@ def edit_customer(request , rid):
 
        
 #         return redirect( '/display_service_management')
-
-
+from .models import Reschedule
 from datetime import datetime
 def edit_service_management(request , rid):
 
@@ -992,8 +1633,13 @@ def edit_service_management(request , rid):
 
         m=service_management.objects.filter(id=rid)
 
-        context={}
-        context['data']=m
+        previous_reschedules = Reschedule.objects.filter(service_id=rid)
+
+        # Prepare context to pass to the template
+        context = {
+            'data': m,
+            'previous_reschedules': previous_reschedules  # Add previous reschedules
+        }
     
         return render(request , 'edit_service_management.html' , context)  
     else:
@@ -1478,43 +2124,65 @@ from datetime import datetime
 from .models import lead_management
 
 def edit_lead_management(request, rid):
-    if request.method == 'GET':
-        m = get_object_or_404(lead_management, id=rid)
-        context = {'data': m}
-        return render(request, 'edit_lead_management.html', context)
+    if request.method =='GET':
+
+        m=lead_management.objects.filter(id=rid)
+
+        context={}
+        context['data']=m
+    
+        return render(request , 'edit_lead_management.html' , context)
     
     elif request.method == 'POST':
         usourceoflead = request.POST.get('usourceoflead', '')
         usalesperson = request.POST.get('usalesperson', '')
-        uhavedonepestcontrolearlier = request.POST.get('uhavedonepestcontrolearlier', '')
-        uleadstatus = request.POST.get('uleadstatus', '')
+        ucustomername = request.POST.get('ucustomername', '')
+        ucustomersegment = request.POST.get('ucustomersegment', '')
         utypeoflead = request.POST.get('utypeoflead', '')
-        utypeofcontract = request.POST.get('utypeofcontract', '')
-        udateoflead = request.POST.get('udateoflead', '')
+        ucontactedby = request.POST.get('ucontactedby', '')
+        uenquirydate = request.POST.get('uenquirydate', '')
 
         try:
-            udateoflead = datetime.strptime(udateoflead, '%Y-%m-%d').date() if udateoflead else timezone.now().date()
+            uenquirydate = datetime.strptime(uenquirydate, '%Y-%m-%d').date() if uenquirydate else timezone.now().date()
         except ValueError:
-            udateoflead = None  # Handle invalid date format
+            uenquirydate = None  # Handle invalid date format
 
-        ucontactno = request.POST.get('ucontactno', '')
+        umaincategory = request.POST.get('umaincategory', '')
+        usubcategory = request.POST.get('usubcategory', '')
+        uprimarycontact = request.POST.get('uprimarycontact', '')
+        usecondarycontact = request.POST.get('usecondarycontact', '')
         ucustomeremail = request.POST.get('ucustomeremail', '')
         ucustomeraddress = request.POST.get('ucustomeraddress', '')
-        uvisitorsname = request.POST.get('uvisitorsname', '')       
+        ulocation = request.POST.get('ulocation', '')       
+        ucity = request.POST.get('ucity', '')
+        ufirstfollowupdate = request.POST.get('ufirstfollowupdate', '')
 
-        m = get_object_or_404(lead_management, id=rid)
-        m.sourceoflead = usourceoflead
-        m.salesperson = usalesperson
-        m.havedonepestcontrolearlier = uhavedonepestcontrolearlier
-        m.leadstatus = uleadstatus
-        m.typeoflead = utypeoflead
-        m.typeofcontract = utypeofcontract
-        m.dateoflead = udateoflead
-        m.contactno = ucontactno
-        m.customeremail = ucustomeremail
-        m.customeraddress = ucustomeraddress
-        m.visitorsname = uvisitorsname
-        m.save()
+        try:
+            ufirstfollowupdate = datetime.strptime(ufirstfollowupdate, '%Y-%m-%d').date() if ufirstfollowupdate else timezone.now().date()
+        except ValueError:
+            ufirstfollowupdate = None  # Handle invalid date format
+
+        m=lead_management.objects.filter(id=rid)
+
+        m.update(
+            sourceoflead = usourceoflead,
+            salesperson = usalesperson,
+            customername = ucustomername,
+            customersegment = ucustomersegment,
+            typeoflead = utypeoflead,
+            contactedby = ucontactedby,
+            enquirydate = uenquirydate,
+            maincategory = umaincategory,
+            subcategory = usubcategory,
+            primarycontact = uprimarycontact,
+            secondarycontact = usecondarycontact,
+            customeremail = ucustomeremail,
+            customeraddress = ucustomeraddress,
+            location = ulocation,
+            city = ucity,
+            firstfollowupdate=ufirstfollowupdate
+        )
+        
        
         return redirect('/display_lead_management')
 
@@ -1535,43 +2203,150 @@ def search_inventory(request):
 
 
 def search(request):
+    # search_query = request.GET.get('q', '').strip()
+    # if search_query:
+    #     # Perform case-insensitive search operation based on the query in the specified fields
+    #     results = (
+    #         customer_details.objects.filter(firstname__icontains=search_query) |
+    #         customer_details.objects.filter(lastname__icontains=search_query) |
+    #         customer_details.objects.filter(customerid__icontains=search_query)
+    #     )
+
+    #     data = [
+    #         {
+    #             'customerid': customer.customerid,
+    #             'firstname': customer.firstname,
+    #             'lastname': customer.lastname,
+    #             'primaryemail': customer.primaryemail,
+    #             'secondaryemail': customer.secondaryemail,
+    #             'primarycontact': customer.primarycontact,
+    #             'secondarycontact': customer.secondarycontact,
+    #             'contactperson': customer.contactperson,
+    #             'customersegment': customer.customersegment,
+    #             'shifttopartyaddress': customer.shifttopartyaddress,
+    #             'shifttopartycity': customer.shifttopartycity,
+    #             'shifttopartystate': customer.shifttopartystate,
+    #             'shifttopartypostal': customer.shifttopartypostal,
+    #             'soldtopartyaddress': customer.soldtopartyaddress,
+    #             'soldtopartycity': customer.soldtopartycity,
+    #             'soldtopartystate': customer.soldtopartystate,
+    #             'soldtopartypostal': customer.soldtopartypostal,
+    #         }
+    #         for customer in results
+    #     ]
+
+    #     return render(request, 'search.html', {'results': data})
+    # else:
+    #     return render(request, 'search.html', {'message': 'No search query provided'})
+
+
+
+    # search_query = request.GET.get('q', '').strip()
+    # sort_field = request.GET.get('sort', 'firstname')  # Default sort field is 'firstname'
+    # sort_order = request.GET.get('order', 'asc')  # Default sort order is 'asc'
+
+    # if sort_order == 'desc':
+    #     sort_field = f'-{sort_field}'  # Prefix the field with '-' for descending order
+
+    # results = customer_details.objects.all()
+
+    # if search_query:
+    #     results = results.filter(
+    #         Q(firstname__icontains=search_query) |
+    #         Q(lastname__icontains=search_query) |
+    #         Q(customerid__icontains=search_query)
+    #     )
+
+    # results = results.order_by(sort_field)
+
+    # # Paginate results
+    # paginator = Paginator(results, 10)  # Show 10 results per page
+    # page_number = request.GET.get('page')
+    # page_obj = paginator.get_page(page_number)
+
+    # context = {
+    #     'search_query': search_query,
+    #     'page_obj': page_obj,
+    #     'sort_order': sort_order,
+    #     'sort_field': sort_field.lstrip('-'),  # Remove '-' to pass only field name
+    # }
+
+    # return render(request, 'search.html', context)
+
+
+    # search_query = request.GET.get('q', '').strip()
+    # sort_field = request.GET.get('sort', 'firstname')  # Default sorting field
+    # sort_order = '' if sort_field.startswith('-') else '-'
+    # sort_field = f"{sort_order}{sort_field}"
+    
+    # if search_query:
+    #     # Perform case-insensitive search operation
+    #     results = (
+    #         customer_details.objects.filter(firstname__icontains=search_query) |
+    #         customer_details.objects.filter(lastname__icontains=search_query) |
+    #         customer_details.objects.filter(customerid__icontains=search_query)
+    #     ).order_by(sort_field)
+
+    #     paginator = Paginator(results, 10)  # Paginate with 10 results per page
+    #     page_number = request.GET.get('page', 1)
+    #     page_obj = paginator.get_page(page_number)
+
+    #     context = {
+    #         'search_query': search_query,
+    #         'page_obj': page_obj,
+    #         'sort_order': 'asc' if sort_order == '' else 'desc',
+    #         'sort_field': sort_field.lstrip('-'),
+    #         'no_results': results.exists() == False,  # True if no results found
+    #     }
+    # else:
+    #     context = {
+    #         'search_query': search_query,
+    #         'page_obj': None,
+    #         'sort_order': 'asc',
+    #         'sort_field': 'firstname',
+    #         'no_results': True,  # True because no query was provided
+    #     }
+
+    # return render(request, 'search.html', context)
+
     search_query = request.GET.get('q', '').strip()
-    if search_query:
-        # Perform case-insensitive search operation based on the query in the specified fields
-        results = (
-            customer_details.objects.filter(firstname__icontains=search_query) |
-            customer_details.objects.filter(lastname__icontains=search_query) |
-            customer_details.objects.filter(customerid__icontains=search_query)
-        )
-
-        data = [
-            {
-                'customerid': customer.customerid,
-                'firstname': customer.firstname,
-                'lastname': customer.lastname,
-                'primaryemail': customer.primaryemail,
-                'secondaryemail': customer.secondaryemail,
-                'primarycontact': customer.primarycontact,
-                'secondarycontact': customer.secondarycontact,
-                'contactperson': customer.contactperson,
-                'customersegment': customer.customersegment,
-                'shifttopartyaddress': customer.shifttopartyaddress,
-                'shifttopartycity': customer.shifttopartycity,
-                'shifttopartystate': customer.shifttopartystate,
-                'shifttopartypostal': customer.shifttopartypostal,
-                'soldtopartyaddress': customer.soldtopartyaddress,
-                'soldtopartycity': customer.soldtopartycity,
-                'soldtopartystate': customer.soldtopartystate,
-                'soldtopartypostal': customer.soldtopartypostal,
-            }
-            for customer in results
-        ]
-
-        return render(request, 'search.html', {'results': data})
+    sort_field = request.GET.get('sort', 'firstname')  # Default sort by 'firstname'
+    
+    # Determine the sort order
+    if sort_field.startswith('-'):
+        sort_order = 'desc'
+        sort_field = sort_field[1:]  # Remove the '-' to get the actual field name
     else:
-        return render(request, 'search.html', {'message': 'No search query provided'})
+        sort_order = 'asc'
 
+    results = customer_details.objects.all()  # Start with all records
 
+    if search_query:
+        results = results.filter(
+            Q(firstname__icontains=search_query) |
+            Q(lastname__icontains=search_query) |
+            Q(customerid__icontains=search_query)
+        )
+    
+    # Apply sorting
+    results = results.order_by(f"{'-' if sort_order == 'desc' else ''}{sort_field}")
+
+    # Pagination
+    paginator = Paginator(results, 10)  # Show 10 results per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'search_query': search_query,
+        'page_obj': page_obj,
+        'sort_order': sort_order,
+        'sort_field': sort_field,
+    }
+
+    if not results.exists():
+        context['message'] = "No search results found."
+    
+    return render(request, 'search.html', context)
 
 # In crmapp/views.py
 from django.shortcuts import render
@@ -1761,6 +2536,37 @@ def technician_login(request):
 
     return render(request, 'technician_login.html')
 
+# @login_required
+# def technician_dashboard(request):
+#     user = request.user
+#     try:
+#         technician_profile = TechnicianProfile.objects.get(user=user)
+#     except TechnicianProfile.DoesNotExist:
+#         technician_profile = None
+
+#     context = {
+#         'user': user,
+#         'technician_profile': technician_profile,
+#     }
+
+#     works = WorkAllocation.objects.all()
+
+
+#     print('works: ',works)
+#     for work in works:
+#         if work.status == 'Pending':
+#             work.status = 'workdesk'
+#             work.save()
+#             TechWorkList.objects.create(technician=request.user, work=work)
+    
+#     return render(request, 'technician_dashboard.html', context)
+import json
+from django.utils.timezone import now, timedelta
+from calendar import monthrange
+from django.db.models import Count
+from django.utils.timezone import make_aware
+from datetime import datetime
+
 @login_required
 def technician_dashboard(request):
     user = request.user
@@ -1769,21 +2575,117 @@ def technician_dashboard(request):
     except TechnicianProfile.DoesNotExist:
         technician_profile = None
 
-    context = {
-        'user': user,
-        'technician_profile': technician_profile,
-    }
+    # Filter works completed in the past month
+    # one_month_ago = now() - timedelta(days=30)
+    # works_done_last_month = WorkAllocation.objects.filter(
+    #     technician=technician_profile,
+    #     allocated_datetime__gte=one_month_ago,
+    #     status='Completed'
+    # )
+
+    # # Prepare data for the chart
+    # work_dates = [work.allocated_datetime.strftime('%Y-%m-%d') for work in works_done_last_month]
+    # date_counts = {date: work_dates.count(date) for date in set(work_dates)}
+
+    # chart_data = {
+    #     'labels': list(date_counts.keys()),
+    #     'data': list(date_counts.values())
+    # }
+
+    # chart_data_json = json.dumps(chart_data)
+
+    # Update statuses and create TechWorkList entries
+
+    techworklistobj = TechWorkList.objects.all()
+    for i in techworklistobj:
+        print('tech',i.technician.first_name,'completion time',i.completion_datetime )
+
 
     works = WorkAllocation.objects.all()
-
-
-    print('works: ',works)
     for work in works:
         if work.status == 'Pending':
             work.status = 'workdesk'
             work.save()
             TechWorkList.objects.create(technician=request.user, work=work)
+
+    # Get the current date or use the month and year from query parameters
+    query_month = request.GET.get('month')
+    query_year = request.GET.get('year')
+
+    if query_month and query_year:
+        selected_month = int(query_month)
+        selected_year = int(query_year)
+    else:
+        today = now()
+        selected_month = today.month
+        selected_year = today.year
+
+    # Get the start and end dates for the selected month
+    from django.utils.timezone import make_aware
+
+    print('selected month: ', selected_month)
+    print('selected year',selected_year)
+    # Make the start and end dates timezone-aware
+    first_day_of_month = make_aware(datetime(selected_year, selected_month, 1))
+    last_day_of_month = make_aware(datetime(selected_year, selected_month, monthrange(selected_year, selected_month)[1], 23, 59, 59))
+
+    print("first day",first_day_of_month)
+    print('last day of month', last_day_of_month)
+
+
+    # Filter works for the selected month
+    print('Filter Range:', first_day_of_month, '-', last_day_of_month)
+
+    completed_works = TechWorkList.objects.filter(
+        technician=user,
+        status='Completed',
+        completion_datetime__range=[first_day_of_month, last_day_of_month]
+    )
+
+    print('Completed Works:', completed_works)
+
+    # Group works by week
+    weekly_work_counts = {}
+    current_date = first_day_of_month
+    while current_date <= last_day_of_month:
+        week_start = current_date
+        week_end = week_start + timedelta(days=6)
+
+        week_label = f"{week_start.strftime('%d %b')} - {week_end.strftime('%d %b')}"
+        count = completed_works.filter(
+            completion_datetime__range=[week_start, min(week_end, last_day_of_month)]
+        ).count()
+
+        weekly_work_counts[week_label] = count
+        print(f"Week: {week_label}, Count: {count}")  # Debugging output
+        current_date = week_end + timedelta(days=1)
+
+    # Prepare data for the chart
+    labels = list(weekly_work_counts.keys())
+    data = list(weekly_work_counts.values())
+
+
+    chart_data = {
+        'labels': labels,
+        'data': data
+    }
+    chart_data_json = json.dumps(chart_data)
+
+    # Determine previous and next months for navigation
+    previous_month = first_day_of_month - timedelta(days=1)
+    next_month = last_day_of_month + timedelta(days=1)
     
+    context = {
+        'user': user,
+        'technician_profile': technician_profile,
+        'chart_data_json': chart_data_json,  # Pass chart data to the template
+        'selected_month': selected_month,
+        'selected_year': selected_year,
+        'previous_month': previous_month,
+        'next_month': next_month,
+    }
+
+
     return render(request, 'technician_dashboard.html', context)
 
 def create_superadmin(request):
@@ -1855,6 +2757,33 @@ def allocate_work(request,service_id):
 
     technicians = TechnicianProfile.objects.all()
     return render(request, 'allocate_work.html', {'technicians': technicians, 'customer_fname':customer_fname, 'customer_lname':customer_lname, 'customer_contact':customer_contact, 'payment_amount':payment_amount, 'gps_location':gps_location})
+
+
+from crmapp.models import Reschedule, service_management
+
+def reschedule_create(request, service_id):
+    service = get_object_or_404(service_management, id=service_id)
+    if request.method == "POST":
+        # Retrieve data from POST request
+        reason = request.POST.get('reason', '').strip()
+        if not reason:
+            return render(request, 'reschedule_reason.html', {
+                'error': 'Please provide a reason for rescheduling.',
+                'service': service
+            })
+
+        # Log the reason in RescheduleLog
+        Reschedule.objects.create(
+            service=service,
+            old_service_date=service.service_date,
+            old_delivery_time=service.delivery_time,
+            reason=reason
+        )
+
+        # Redirect to the edit form
+        return redirect('edit_service_management', rid=service.id)
+
+    return render(request, 'reschedule.html', {'service': service})
 
 
 from django.core.paginator import Paginator
@@ -2253,18 +3182,23 @@ def handle_csv(file):
             # dateoflead = datetime.strptime(row[6], '%Y-%m-%d').date()
 
             lead_management.objects.create(
-            sourceoflead=row[0],
-            salesperson=row[1],
-            havedonepestcontrolearlier=row[2].lower() == 'true',
-            leadstatus=row[3],
-            typeofcontract=row[4],
-            contactno=row[5],
-            customeraddress=[6],
-            customeremail=row[7],
-            dateoflead=row[8],
-            visitorsname=row[9],
-            typeoflead=row[10],
-           
+                sourceoflead=row[0],
+                salesperson=row[1],
+                primarycontact=row[2],
+                customeraddress=row[3],
+                customeremail=row[4],
+                enquirydate=row[5],
+                typeoflead=row[6],
+                city=row[7],
+                contactedby=row[8],
+                customername =row[9],
+                customersegment=row[10],
+                location=row[11],
+                maincategory=row[12],
+                secondarycontact=row[13],
+                subcategory=row[14],
+                firstfollowupdate=row[15],
+                stage=row[16],
         )
             
         except ValueError as e:
@@ -2280,15 +3214,21 @@ def handle_xlsx(file):
         lead_management.objects.create(
             sourceoflead=row[0],
             salesperson=row[1],
-            havedonepestcontrolearlier=row[2] == 'True',
-            leadstatus=row[3],
-            typeofcontract=row[4],
-            contactno=row[5],
-            customeraddress=row[6],
-            customeremail=row[7],
-            dateoflead=row[8],
-            visitorsname=row[9],
-            typeoflead=row[10]
+            primarycontact=row[2],
+            customeraddress=row[3],
+            customeremail=row[4],
+            enquirydate=row[5],
+            typeoflead=row[6],
+            city=row[7],
+            contactedby=row[8],
+            customername =row[9],
+            customersegment=row[10],
+            location=row[11],
+            maincategory=row[12],
+            secondarycontact=row[13],
+            subcategory=row[14],
+            firstfollowupdate=row[15],
+            stage=row[16],
         )
 # try1
 
@@ -2378,15 +3318,33 @@ from .models import WorkAllocation  # Import your model here
 @login_required
 def work_list_view(request):
     # Create two separate lists for Pending and Completed
-    pending_work = list(TechWorkList.objects.filter(technician=request.user, status="Pending"))
-    completed_work = list(TechWorkList.objects.filter(technician=request.user, status="Completed"))
+    query = request.GET.get('search', '')
+
+    pending_work = TechWorkList.objects.filter(
+        technician=request.user, 
+        status="Pending"
+    )
+    completed_work = TechWorkList.objects.filter(
+        technician=request.user, 
+        status="Completed"
+    )
+
+    if query:
+        pending_work = pending_work.filter(
+            Q(work__customer_contact__icontains=query)
+        )
+        completed_work = completed_work.filter(
+            Q(work__customer_contact__icontains=query)
+        )
+    
     
     # Append completed work to the pending work list
-    work_allocations = pending_work + completed_work
+    work_allocations = list(pending_work) + list(completed_work)
 
     # Debugging output
     for work in work_allocations:
         print("work_allocations statuses:", work.id, "status", work.status)
+        
 
     print("work_allocation: ", work_allocations)
     return render(request, 'work_list.html', {'work_allocations': work_allocations})
@@ -2397,10 +3355,13 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 from crmapp.models import TechWorkList
+from django.templatetags.static import static
 
 def view_work_pdf(request, work_id):
     work = get_object_or_404(TechWorkList, pk=work_id, technician=request.user)
-    context = {'work': work}
+    logo_path = request.build_absolute_uri(static('images/logo.png'))
+
+    context = {'work': work,'logo_path': logo_path}
     html = render_to_string('work_pdf_template.html', context)
     
     response = HttpResponse(content_type='application/pdf')
@@ -2414,7 +3375,9 @@ def view_work_pdf(request, work_id):
 
 def download_work_pdf(request, work_id):
     work = get_object_or_404(TechWorkList, pk=work_id, technician=request.user)
-    context = {'work': work}
+    logo_path = request.build_absolute_uri(static('images/logo.png'))
+
+    context = {'work': work,'logo_path': logo_path}
     html = render_to_string('work_pdf_template.html', context)
     
     response = HttpResponse(content_type='application/pdf')

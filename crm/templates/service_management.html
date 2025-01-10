@@ -497,7 +497,11 @@
 
 
                     <label for="sales_person_contact_no">Sales Person Contact No:</label>
-                    <input type="text" name="sales_person_contact_no"><br>
+                    <input type="text" name="sales_person_contact_no" id="sales_person_contact_no" 
+                        pattern="\d{10}" 
+                        title="Please enter a valid 10-digit phone number" 
+                        required><br>
+
 
                     <label for="delivery_time">Delivery Time</label>
                     <input type="time" class="form-control" id="delivery_time" name="delivery_time" required>

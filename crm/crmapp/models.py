@@ -137,7 +137,7 @@ class invoice(models.Model):
     company_name = models.CharField(max_length=255, default='Null')
     company_email = models.EmailField(default='Null')
     company_contact_no = models.CharField(max_length=20, default='0')
-    invoice_no = models.CharField(max_length=100, unique=True, editable=False, null=True, blank=True)
+    invoice_no = models.CharField(max_length=200, unique=True, editable=False, null=True, blank=True)
     date = models.DateField(default=timezone.now)
     description_of_goods = models.TextField(max_length=5000, default='Null')
     hsn_sac_code = models.CharField(max_length=100, default='Null')
@@ -210,26 +210,94 @@ class invoice(models.Model):
 #     quantity=models.IntegerField()
 
 
+# class lead_management(models.Model):
+#     sourceoflead = models.CharField(max_length=100)
+#     salesperson = models.CharField(max_length=100)
+#     havedonepestcontrolearlier = models.CharField(max_length=100)
+#     leadstatus = models.CharField(max_length=100, choices=[('Call', 'Call'), ('Visit', 'Visit'), ('Quotation', 'Quotation')])
+#     typeoflead = models.CharField(max_length=100,null=True, choices=[('Hot','Hot'),('Warm','Warm'),('Cold','Cold'),('Not Interested','Not Interested'),('Loss of Order','Loss of Order')])
+#     typeofcontract = models.CharField(max_length=100, choices=[('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')])
+#     dateoflead = models.DateField(default=timezone.now)
+#     contactno = models.BigIntegerField(null=True)
+#     customeremail = models.EmailField(null=True)
+#     customeraddress = models.CharField(max_length=255 , null=True)
+#     visitorsname=models.CharField(max_length=200 , default='Null')
+
+
+#     def __str__(self):
+#         return self.sourceoflead
+
 class lead_management(models.Model):
-    sourceoflead = models.CharField(max_length=100)
+    sourceoflead = models.CharField(max_length=200, choices=[('Google', 'Google'), ('Justdial', 'Justdial'), ('Indiamart', 'Indiamart'), ('Customer Reference', 'Customer Reference'), ('BNI', 'BNI'),('Lineclub', 'Lineclub'),('Employee Reference', 'Employee Reference'),('Others', 'Others')], default="NOT SELECTED")
     salesperson = models.CharField(max_length=100)
-    havedonepestcontrolearlier = models.CharField(max_length=100)
-    leadstatus = models.CharField(max_length=100, choices=[('Call', 'Call'), ('Visit', 'Visit'), ('Quotation', 'Quotation')])
-    typeoflead = models.CharField(max_length=100,null=True, choices=[('Hot','Hot'),('Warm','Warm'),('Cold','Cold'),('Not Interested','Not Interested'),('Loss of Order','Loss of Order')])
-    typeofcontract = models.CharField(max_length=100, choices=[('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')])
-    dateoflead = models.DateField(default=timezone.now)
-    contactno = models.BigIntegerField(null=True)
+    customername = models.CharField(max_length=100, null=True, blank= True)
+    customersegment = models.CharField(max_length=100, choices=[('Residential', 'Residential'), ('Industrial', 'Industrial'), ('Commercial', 'Commercial'), ('Institutional', 'Institutional'), ('Irrelevant Leads', 'Irrelevant Leads')], default="NOT SELECTED")
+    enquirydate = models.DateField(default=timezone.now)
+    contactedby = models.CharField(max_length=100, null=True, blank= True)
+    maincategory = models.CharField(max_length=200, null=True, blank= True)
+    subcategory = models.CharField(max_length=200, null=True, blank= True)
+    primarycontact = models.BigIntegerField(null=True)
+    secondarycontact = models.BigIntegerField(null=True)
     customeremail = models.EmailField(null=True)
     customeraddress = models.CharField(max_length=255 , null=True)
-    visitorsname=models.CharField(max_length=200 , default='Null')
-
-
+    location = models.URLField(null=True, blank=True)
+    city = models.CharField(max_length=100, default="Unknown City")
+    typeoflead = models.CharField(max_length=100,null=True, choices=[('Hot','Hot'),('Warm','Warm'),('Cold','Cold'),('Not Interested','Not Interested'),('Loss of Order','Loss of Order')])
+    firstfollowupdate = models.DateField(default=timezone.now)
+    stage = models.IntegerField(default=1)
+    
     def __str__(self):
         return self.sourceoflead
 
 
+
 # In crmapp/models.py
 
+class firstfollowup(models.Model):
+    lead = models.ForeignKey(lead_management, on_delete=models.CASCADE, null=True, blank=True)
+    havedonepestcontrolearlier = models.CharField(max_length=100, choices=[('Yes', 'Yes'),('No','No')],default='NOT SELECTED')
+    agency = models.CharField(max_length=100, default="NA")
+    inspectiononsite = models.CharField(max_length=100, choices=[('Yes', 'Yes'),('No','No')],default='NOT SELECTED')
+    levelofinspection = models.CharField(max_length=100, choices=[('Low', 'Low'),('Middle','Middle'),('High','High')],default='NOT SELECTED')
+    quotationgiven = models.CharField(max_length=100, choices=[('Yes', 'Yes'),('No','No')],default='NOT SELECTED')
+    quotationamount = models.FloatField(null=True, blank=True)
+    mailsent = models.CharField(max_length=100, choices=[('Yes', 'Yes'),('No','No')],default='NOT SELECTED')
+    customermeeting = models.CharField(max_length=100, choices=[('Yes', 'Yes'),('No','No')],default='NOT SELECTED')
+    firstremark = models.CharField(max_length=100, default="NA")
+    secondfollowupdate = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"Follow-Up 1 for Lead {self.lead}"
+    
+
+class secondfollowup(models.Model):
+    lead = models.ForeignKey(lead_management, on_delete=models.CASCADE, null=True, blank=True)
+    negotiationstage = models.CharField(max_length=100, choices=[('Decision Pending', 'Decision Pending'),('Delay in Business Decision','Delay in Business Decision'),('Rates Finalized','Rates Finalized')],default='NOT SELECTED')
+    mailsent2 = models.CharField(max_length=100, choices=[('Yes', 'Yes'),('No','No'),('NA','NA')],default='NOT SELECTED')
+    secondremark = models.CharField(max_length=100, default="NA")
+    thirdfollowupdate = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"Follow-Up 2 for Lead {self.lead}"
+    
+    
+class thirdfollowup(models.Model):
+    lead = models.ForeignKey(lead_management, on_delete=models.CASCADE, null=True, blank=True)
+    thirdremark = models.CharField(max_length=100, default="NA")
+    fourthfollowupdate = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"Follow-Up 3 for Lead {self.lead}"
+    
+class finalfollowup(models.Model):
+    lead = models.ForeignKey(lead_management, on_delete=models.CASCADE, null=True, blank=True)
+    fourthremark = models.CharField(max_length=100, default="NA")
+    finalstatus = models.CharField(max_length=100, choices=[('Decision Pending', 'Decision Pending'),('Deal Done','Deal Done')],default='NOT SELECTED')
+    contracttype = models.CharField(max_length=50, choices=[('AMC', 'AMC'), ('Single', 'Single')], default="NOT SELECTED")
+    bookingamount = models.FloatField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Follow-Up 4 for Lead {self.lead}"
 
 
 
@@ -348,7 +416,16 @@ class WorkAllocation(models.Model):
 
     def __str__(self):
         return f"Work Allocation for {self.customer_fname} ({self.status})"
-   
+
+from django.utils.timezone import now
+class Reschedule(models.Model):
+    service = models.ForeignKey(service_management, on_delete=models.CASCADE, default=None, null=True, blank=True)
+    old_service_date = models.DateField(default=now)
+    old_delivery_time = models.TimeField(default=now)
+    reason = models.TextField()
+
+    def __str__(self):
+        return f"Reschedule for Service ID {self.service.id}"   
 
 class UploadedFile(models.Model):
     file = models.FileField(upload_to='uploads/')
