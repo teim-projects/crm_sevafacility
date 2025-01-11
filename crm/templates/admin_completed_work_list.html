@@ -83,7 +83,7 @@
                     {% for work in completed_work_list %}
                         <tr>
                             <td>{{ work.id }}</td>
-                            <td>{{ work.work.customer_name }}</td> <!-- Adjust based on your actual model -->
+                            <td>{{ work.work.customer_fname }} {{ work.work.customer_lname }}</td> <!-- Adjust based on your actual model -->
                             <td>{{ work.technician.first_name }} {{ work.technician.last_name }}</td>
                             <td>{{ work.completion_datetime }}</td>
                             <td><a href="{% url 'admin_work_details' work.pk %}">View More</a></td>

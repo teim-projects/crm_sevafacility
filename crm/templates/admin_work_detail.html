@@ -200,20 +200,24 @@
                 <div class="img-container">
                     <div>
                         <p><strong>Photo Before Service:</strong><br>
-                            {% if work.photo_before_service %}
-                                <img src="{{ work.photo_before_service.url }}" alt="Before Service">
-                            {% else %}
-                                No photo available.
-                            {% endif %}
+                            {% if work.photos_before_service.exists %}
+                            {% for photo in work.photos_before_service.all %}
+                                <img src="{{ photo.file.url }}" alt="Photo Before Service" style="max-width: 100%; height: auto;">
+                            {% endfor %}
+                        {% else %}
+                            <p>No photos available.</p>
+                        {% endif %}
                         </p>
                     </div>
                     <div>
                         <p><strong>Photo After Service:</strong><br>
-                            {% if work.photo_after_service %}
-                                <img src="{{ work.photo_after_service.url }}" alt="After Service">
-                            {% else %}
-                                No photo available.
-                            {% endif %}
+                            {% if work.photos_after_service.exists %}
+                            {% for photo in work.photos_after_service.all %}
+                                <img src="{{ photo.file.url }}" alt="Photo Before Service" style="max-width: 100%; height: auto;">
+                            {% endfor %}
+                        {% else %}
+                            <p>No photos available.</p>
+                        {% endif %}
                         </p>
                     </div>
                     <div>
@@ -227,11 +231,13 @@
                     </div>
                     <div>
                         <p><strong>Payment Photo:</strong><br>
-                            {% if work.payment_photo %}
-                                <img src="{{ work.payment_photo.url }}" alt="Payment">
-                            {% else %}
-                                No photo available.
-                            {% endif %}
+                                {% if work.payment_photos.exists %}
+                                {% for photo in work.payment_photos.all %}
+                                    <img src="{{ photo.file.url }}" alt="Photo Before Service" style="max-width: 100%; height: auto;">
+                                {% endfor %}
+                                {% else %}
+                                <p>No photos available.</p>
+                                {% endif %}
                         </p>
                     </div>
                 </div>

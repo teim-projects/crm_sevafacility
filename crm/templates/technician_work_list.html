@@ -160,7 +160,7 @@
                 <tr>
                     <td>{{ work.id }}</td>
                     <td>{{ work.technician }}</td>
-                    <td>{{ work.customer_name }}</td>
+                    <td>{{ work.customer_fname }} {{ work.customer_lname }}</td>
                     <td>{{ work.work_description }}</td>
                     <td>{{ work.customer_payment_status }}</td>
                     <td>{{ work.payment_amount }}</td>
@@ -195,7 +195,6 @@
             {% endif %}
         </div>
 
-        <a href="{% url 'allocate_work' %}" class="btn btn-primary">Allocate More Work</a>
         <a href="/index" class="btn btn-primary">Go Back</a>
     </div>
 </body>
